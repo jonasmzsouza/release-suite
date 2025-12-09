@@ -1,0 +1,62 @@
+{
+  "name": "release-suite",
+  "version": "0.1.0",
+  "description": "Semantic versioning tools for Git-based projects, providing automated version computation, changelog generation and release notes creation.",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "rs-compute-version": "bin/compute-version.js",
+    "rs-generate-changelog": "bin/generate-changelog.js",
+    "rs-generate-release-notes": "bin/generate-release-notes.js",
+    "rs-preview": "bin/preview.js",
+    "rs-create-tag": "bin/create-tag.js"
+  },
+  "scripts": {
+    "lint": "eslint bin/",
+    "lint:fix": "eslint bin/ --fix",
+    "version:compute": "node bin/compute-version.js",
+    "changelog": "node bin/generate-changelog.js",
+    "release:notes": "node bin/generate-release-notes.js",
+    "preview": "node bin/preview.js create",
+    "preview:clear": "node bin/preview.js remove",
+    "create-tag": "node bin/create-tag.js",
+    "create-tag:compute": "node bin/create-tag.js --compute",
+    "create-tag:dry": "node bin/create-tag.js --dry-run",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonasmzsouza/release-suite"
+  },
+  "keywords": [
+    "release",
+    "tools",
+    "semantic",
+    "versioning",
+    "changelog",
+    "release-notes",
+    "publish",
+    "npm",
+    "nodejs"
+  ],
+  "author": {
+    "name": "Jonas Souza",
+    "email": "jonasmzsouza@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jonasmzsouza/release-suite/issues"
+  },  
+  "devDependencies": {
+    "esbuild": "^0.25.11",
+    "eslint": "9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "globals": "^16.5.0"
+  }
+}

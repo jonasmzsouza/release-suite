@@ -1,0 +1,73 @@
+name: Publish Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  id-token: write # 🔐 REQUIRED for OIDC
+  packages: write
+  pull-requests: write
+
+concurrency:
+  group: publish-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    # Only runs when:
+    # - The PR has been merged
+    # - And the branch is release/v/*
+    if: >
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'release/v/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install release-suite locally (self usage)
+        run: npm install .
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Create Git Tag
+        run: rs-create-tag
+
+      # Publish to npm using Trusted Publishing (OIDC)
+      - name: Publish to npm (Trusted Publishing)
+        run: npm publish
+
+      # Generate release notes for GitHub Release
+      - name: Generate GitHub Release Notes
+        run: rs-generate-release-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Create GitHub Release with notes and attach built assets
+      - name: Create GitHub Release + Tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+
+          gh release create "$VERSION" \
+            --title "$VERSION" \
+            --notes-file RELEASE_NOTES.md \
+            ./dist/* || true

@@ -1,0 +1,94 @@
+name: Create Release PR
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-pr:
+    # Only runs when:
+    # - The PR has been merged
+    # - And the branch is NOT release/v/*
+    if: >
+      github.event.pull_request.merged == true &&
+      !startsWith(github.event.pull_request.head.ref, 'release/v/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Avoids loops: ignores commits created by bots
+      - name: Skip if last commit is from bot
+        run: |
+          last_author="$(git log -1 --pretty=format:'%an')"
+          echo "Last author: $last_author"
+          if [[ "$last_author" == *"github-actions"* ]]; then
+            echo "Commit created by bot. Canceling workflow."
+            exit 0
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install release-suite locally (self usage)
+        run: npm install . 
+
+      # Compute next version to release
+      - name: Compute next version
+        id: semver
+        run: |
+          VERSION=$(rs-compute-version || echo "")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Stop if no release needed
+        if: steps.semver.outputs.version == ''
+        run: exit 0
+
+      - name: Bump package.json
+        run: npm version ${{ steps.semver.outputs.version }} --no-git-tag-version
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Generate changelog
+        run: rs-generate-changelog
+
+      # Automatically create branches, commits, and PRs with peter-evans
+      - name: Create Release PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: ":bricks: chore(release): prepare version ${{ steps.semver.outputs.version }} [skip ci]"
+          branch: release/v/${{ steps.semver.outputs.version }}
+          title: ":bricks: chore(release): ${{ steps.semver.outputs.version }}"
+          body: |
+            This PR contains the release artifacts:
+
+            - Updated `package.json` and `package-lock.json` with version ${{ steps.semver.outputs.version }}
+            - Updated `CHANGELOG.md` with latest changes
+            - Generated `/dist` directory with build files (if applicable)
+
+            Upon approving & merging, the publish will run automatically.
+          labels: |
+            release
+          add-paths: |
+            package.json
+            CHANGELOG.md
+            dist/**
