@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import { execSync } from "node:child_process";
 import fs from "node:fs";
+import { computeVersion } from "./compute-version.js";
+import { generateChangelog } from "./generate-changelog.js";
+import { generateReleaseNotes } from "./generate-release-notes.js";
 
 process.env.PREVIEW_MODE = "true";
-
-const run = (cmd) => execSync(cmd, { encoding: "utf8" }).trim();
 
 const filesMap = {
   changelog: "CHANGELOG.preview.md",
@@ -21,15 +21,15 @@ if (!["create", "remove"].includes(action)) {
 if (action === "create") {
   console.log("🔧 Generating preview files...");
 
-  const versionOutput = run("node bin/compute-version.js");
+  const versionOutput = computeVersion({ isPreview: true });
 
   if (versionOutput) {
     console.log("🔖 Computed version:");
     console.log(versionOutput);
   }
 
-  run("node bin/generate-changelog.js");
-  run("node bin/generate-release-notes.js");
+  generateChangelog({ isPreview: true });
+  generateReleaseNotes({ isPreview: true });
 
   console.log("✅ Preview ready:");
   console.log(" -", filesMap.changelog);

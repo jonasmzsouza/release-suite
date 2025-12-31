@@ -1,28 +1,29 @@
 #!/usr/bin/env node
 import { execSync } from "node:child_process";
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 
-function run(cmd) {
-  return execSync(cmd, { encoding: "utf8" }).trim();
+function run(cmd, cwd = process.cwd()) {
+  return execSync(cmd, { encoding: "utf8", cwd }).trim();
 }
 
-const isPreview = process.env.PREVIEW_MODE === "true";
-
-function getPackageVersion() {
+export function getPackageVersion(cwd = process.cwd()) {
   try {
-    const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+    const pkg = JSON.parse(
+      fs.readFileSync(`${cwd}/package.json`, "utf8")
+    );
     return pkg.version;
   } catch {
     return "0.0.0";
   }
 }
 
-function getLastTag() {
+function getLastTag(isPreview, cwd = process.cwd()) {
   try {
-    const tag = run("git describe --tags --abbrev=0");
+    const tag = run("git describe --tags --abbrev=0", cwd);
     return tag.replace(/^v/, "");
   } catch {
-    const pkgVersion = getPackageVersion();
+    const pkgVersion = getPackageVersion(cwd);
     if (isPreview) {
       console.log(
         `⚠ No previous tag found. Using package.json version (${pkgVersion}) as base.`
@@ -32,9 +33,8 @@ function getLastTag() {
   }
 }
 
-function getCommitsSince(version) {
+function getCommitsSince(version, cwd = process.cwd()) {
   try {
-    // If version came from package.json (no tag), include all commits
     const hasTag = (() => {
       try {
         run("git describe --tags --abbrev=0");
@@ -47,7 +47,8 @@ function getCommitsSince(version) {
     const range = hasTag ? `${version}..HEAD` : "HEAD";
 
     return run(
-      `git log ${range} --pretty=format:%H%x1f%s%x1f%b`
+      `git log ${range} --pretty=format:%H%x1f%s%x1f%b`,
+      cwd
     )
       .split("\n")
       .filter(Boolean);
@@ -66,8 +67,7 @@ function detectType(subject, body) {
     /^(:\S+: )?(feat|fix|refactor|docs|chore|style|test|build|perf|ci|raw|cleanup|remove)(\(.+\))?(!)?:/i;
 
   const m = subject.match(re);
-  const isBreaking =
-    /BREAKING CHANGE/i.test(body) || (m && m[4] === "!");
+  const isBreaking = /BREAKING CHANGE/i.test(body) || (m && m[4] === "!");
 
   if (isBreaking) return "major";
   if (m) {
@@ -81,18 +81,21 @@ function detectType(subject, body) {
 function bumpVersion(type, version) {
   const [major, minor, patch] = version
     .split(".")
-    .map(n => parseInt(n, 10) || 0);
+    .map((n) => parseInt(n, 10) || 0);
 
   if (type === "major") return `${major + 1}.0.0`;
   if (type === "minor") return `${major}.${minor + 1}.0`;
   return `${major}.${minor}.${patch + 1}`;
 }
 
-function main() {
-  const baseVersion = getLastTag();
-  const commits = getCommitsSince(baseVersion).map(parseCommitLine);
+export function computeVersion({ isPreview = process.env.PREVIEW_MODE === "true", cwd = process.cwd() } = {}) {
+  const baseVersion = getLastTag(isPreview, cwd);
+  const commits = getCommitsSince(baseVersion, cwd).map(parseCommitLine);
 
-  if (!commits.length) process.exit(0);
+  if (!commits.length) {
+    if (isPreview) console.log("ℹ No commits to analyze.");
+    return null;
+  }
 
   let bump = null;
 
@@ -113,7 +116,7 @@ function main() {
       console.log("Commits analyzed:", commits.length);
       console.log("No version bump detected.");
     }
-    process.exit(0);
+    return null;
   }
 
   const nextVersion = bumpVersion(bump, baseVersion);
@@ -124,9 +127,18 @@ function main() {
     console.log("Commits analyzed:", commits.length);
     console.log("Highest bump detected:", bump);
     console.log("Next version:", nextVersion);
-  } else {
-    console.log(nextVersion);
   }
+
+  return nextVersion;
 }
 
-main();
+function main() {
+  const isPreview = process.env.PREVIEW_MODE === "true";
+  const v = computeVersion({ isPreview });
+  if (isPreview) process.exit(0);
+  if (!v) process.exit(0);
+  console.log(v);
+}
+
+const __filename = fileURLToPath(import.meta.url);
+if (process.argv[1] === __filename) main();

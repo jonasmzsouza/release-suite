@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { execSync } from "node:child_process";
 import fs from "node:fs";
+import { computeVersion } from "./compute-version.js";
 
 function run(cmd, silent = false) {
   return execSync(cmd, {
@@ -18,7 +19,7 @@ let version;
 if (USE_COMPUTED) {
   console.log("🔢 Computing version dynamically...");
   try {
-    version = run("node bin/compute-version.js", true);
+    version = computeVersion({ isPreview: false });
   } catch {
     console.error("❌ Failed to compute version.");
     process.exit(1);

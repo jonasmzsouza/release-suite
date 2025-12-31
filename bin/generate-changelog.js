@@ -1,25 +1,44 @@
 #!/usr/bin/env node
 import { execSync } from "node:child_process";
 import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { computeVersion } from "./compute-version.js";
 
-function run(cmd) {
-  return execSync(cmd, { encoding: "utf8" }).trim();
+function run(cmd, cwd = process.cwd()) {
+  return execSync(cmd, { encoding: "utf8", cwd }).trim();
 }
 
-function getAllTags() {
-  try {
-    return run("git tag --sort=-creatordate")
-      .split("\n")
-      .filter(Boolean);
-  } catch {
-    return [];
+function getAllTags(cwd = process.cwd()) {
+  const sortStrategies = [
+    "-version:refname",
+    "-v:refname",
+    "-refname",
+    "-creatordate",
+  ];
+
+  for (const sort of sortStrategies) {
+    try {
+      const tags = run(`git tag --sort=${sort}`, cwd)
+        .split("\n")
+        .map(tag => tag.trim())
+        .filter(Boolean);
+
+      if (tags.length) {
+        return tags;
+      }
+    } catch (err) {
+      console.debug(`Sort '${sort}' not supported: ${err.message}`);
+    }
   }
+
+  return [];
 }
 
-function getCommitsBetween(from, to) {
+function getCommitsBetween(from, to, cwd = process.cwd()) {
   const range = from ? `${from}..${to}` : to;
   try {
-    return run(`git log ${range} --pretty=format:%H%x1f%s%x1f%b`)
+    return run(`git log ${range} --pretty=format:%H%x1f%s%x1f%b`, cwd)
       .split("\n")
       .filter(Boolean);
   } catch {
@@ -122,48 +141,49 @@ function buildSection(version, buckets) {
   return out.join("\n");
 }
 
-function changelogHasVersion(file, version) {
-  if (!fs.existsSync(file)) return false;
-  const content = fs.readFileSync(file, "utf8");
+function changelogHasVersion(file, version, cwd = process.cwd()) {
+  const full = path.join(cwd, file);
+  if (!fs.existsSync(full)) return false;
+  const content = fs.readFileSync(full, "utf8");
   const safe = version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return new RegExp(`^##\\s+${safe}\\b`, "m").test(content);
 }
 
-function main() {
-  const isPreview = process.env.PREVIEW_MODE === "true";
-  const CHANGELOG_FILE = isPreview
-    ? "CHANGELOG.preview.md"
-    : "CHANGELOG.md";
+export function generateChangelog({ isPreview = process.env.PREVIEW_MODE === "true", cwd = process.cwd() } = {}) {
+  const CHANGELOG_FILE = isPreview ? "CHANGELOG.preview.md" : "CHANGELOG.md";
 
-  const tags = getAllTags();
+  const tags = getAllTags(cwd);
   const sections = [];
 
-  if (tags.length === 0) {
-    const pkgVersion = (() => {
-      try {
-        const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
-        return pkg.version || "0.1.0";
-      } catch {
-        return "0.1.0";
-      }
-    })();
+  const lastTag = tags[0] || null;
+  const nextVersion = computeVersion({ isPreview, cwd }) || "Unreleased";
 
-    if (!changelogHasVersion(CHANGELOG_FILE, pkgVersion)) {
-      const commits = getCommitsBetween(null, "HEAD").map(parseCommit);
+  if (nextVersion === "Unreleased" && isPreview) {
+    console.log("ℹ No version bump detected, showing Unreleased section.");
+  }
+
+  // Always generate the upcoming version (preview & release)
+  if (!changelogHasVersion(CHANGELOG_FILE, nextVersion, cwd)) {
+    const commits = getCommitsBetween(lastTag, "HEAD", cwd).map(parseCommit);
+
+    if (commits.length) {
       const buckets = categorize(commits);
-      sections.push(buildSection(pkgVersion, buckets));
+      sections.push(buildSection(nextVersion, buckets));
     }
-  } else {
-    for (let i = 0; i < tags.length; i++) {
-      const tag = tags[i];
-      const previous = tags[i + 1] || null;
+  }
 
-      if (changelogHasVersion(CHANGELOG_FILE, tag)) continue;
+  // keep historical tag-based sections
+  for (let i = 0; i < tags.length; i++) {
+    const tag = tags[i];
+    const previous = tags[i + 1] || null;
 
-      const commits = getCommitsBetween(previous, tag).map(parseCommit);
-      const buckets = categorize(commits);
-      sections.push(buildSection(tag, buckets));
-    }
+    if (changelogHasVersion(CHANGELOG_FILE, tag, cwd)) continue;
+
+    const commits = getCommitsBetween(previous, tag, cwd).map(parseCommit);
+    if (!commits.length) continue;
+
+    const buckets = categorize(commits);
+    sections.push(buildSection(tag, buckets));
   }
 
   if (!sections.length) {
@@ -171,22 +191,22 @@ function main() {
     return;
   }
 
+  const targetPath = path.join(cwd, CHANGELOG_FILE);
+
   if (isPreview) {
-    fs.writeFileSync(CHANGELOG_FILE, sections.join("\n"), "utf8");
+    fs.writeFileSync(targetPath, sections.join("\n"), "utf8");
   } else {
-    const existing = fs.existsSync(CHANGELOG_FILE)
-      ? "\n" + fs.readFileSync(CHANGELOG_FILE, "utf8")
-      : "";
-    fs.writeFileSync(
-      CHANGELOG_FILE,
-      sections.join("\n") + existing,
-      "utf8"
-    );
+    const existing = fs.existsSync(targetPath) ? "\n" + fs.readFileSync(targetPath, "utf8") : "";
+    fs.writeFileSync(targetPath, sections.join("\n") + existing, "utf8");
   }
 
-  console.log(
-    isPreview ? "CHANGELOG preview generated." : "CHANGELOG updated."
-  );
+  console.log(isPreview ? "CHANGELOG preview generated." : "CHANGELOG updated.");
 }
 
-main();
+function main() {
+  const isPreview = process.env.PREVIEW_MODE === "true";
+  generateChangelog({ isPreview });
+}
+
+const __filename = fileURLToPath(import.meta.url);
+if (process.argv[1] === __filename) main();
