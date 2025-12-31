@@ -29,6 +29,12 @@ npm install release-suite --save-dev
 | `rs-preview`                | Generates preview changelog & release notes               |
 | `rs-create-tag`             | Create and push a git tag based on `package.json` version |
 
+> 💡 **Note about execution**
+>
+> - When using these commands via `npm run`, they can be referenced directly (`rs-*`).
+> - In CI/CD environments (e.g. GitHub Actions), always invoke them using `npx`
+>   (e.g. `npx rs-generate-changelog`) to ensure proper binary resolution.
+
 ## 🧠 Usage
 
 Add to your project's `package.json`:
@@ -49,6 +55,8 @@ Add to your project's `package.json`:
 ```
 
 ## 🤖 CI/CD Usage (GitHub Actions)
+
+> ℹ️ In CI/CD environments, always use `npx` when invoking `rs-*` commands.
 
 This project is designed to be used in automated pipelines.
 
