@@ -3,7 +3,7 @@ import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { getPackageVersion } from "./compute-version.js";
+import { computeVersion } from "./compute-version.js";
 
 function run(cmd, cwd = process.cwd()) {
   return execSync(cmd, { encoding: "utf8", cwd }).trim();
@@ -155,25 +155,35 @@ export function generateChangelog({ isPreview = process.env.PREVIEW_MODE === "tr
   const tags = getAllTags(cwd);
   const sections = [];
 
-  if (tags.length === 0) {
-    const pkgVersion = getPackageVersion(cwd);
+  const lastTag = tags[0] || null;
+  const nextVersion = computeVersion({ isPreview, cwd }) || "Unreleased";
 
-    if (!changelogHasVersion(CHANGELOG_FILE, pkgVersion, cwd)) {
-      const commits = getCommitsBetween(null, "HEAD", cwd).map(parseCommit);
+  if (nextVersion === "Unreleased" && isPreview) {
+    console.log("ℹ No version bump detected, showing Unreleased section.");
+  }
+
+  // Always generate the upcoming version (preview & release)
+  if (!changelogHasVersion(CHANGELOG_FILE, nextVersion, cwd)) {
+    const commits = getCommitsBetween(lastTag, "HEAD", cwd).map(parseCommit);
+
+    if (commits.length) {
       const buckets = categorize(commits);
-      sections.push(buildSection(pkgVersion, buckets));
+      sections.push(buildSection(nextVersion, buckets));
     }
-  } else {
-    for (let i = 0; i < tags.length; i++) {
-      const tag = tags[i];
-      const previous = tags[i + 1] || null;
+  }
 
-      if (changelogHasVersion(CHANGELOG_FILE, tag, cwd)) continue;
+  // keep historical tag-based sections
+  for (let i = 0; i < tags.length; i++) {
+    const tag = tags[i];
+    const previous = tags[i + 1] || null;
 
-      const commits = getCommitsBetween(previous, tag, cwd).map(parseCommit);
-      const buckets = categorize(commits);
-      sections.push(buildSection(tag, buckets));
-    }
+    if (changelogHasVersion(CHANGELOG_FILE, tag, cwd)) continue;
+
+    const commits = getCommitsBetween(previous, tag, cwd).map(parseCommit);
+    if (!commits.length) continue;
+
+    const buckets = categorize(commits);
+    sections.push(buildSection(tag, buckets));
   }
 
   if (!sections.length) {
