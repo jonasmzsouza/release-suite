@@ -48,7 +48,7 @@ jobs:
         run: npm run build --if-present
 
       - name: Create Git Tag
-        run: rs-create-tag
+        run: npx rs-create-tag
 
       # Publish to npm using Trusted Publishing (OIDC)
       - name: Publish to npm (Trusted Publishing)
@@ -56,7 +56,7 @@ jobs:
 
       # Generate release notes for GitHub Release
       - name: Generate GitHub Release Notes
-        run: rs-generate-release-notes
+        run: npx rs-generate-release-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
