@@ -55,8 +55,11 @@ jobs:
         id: compute
         run: |
           set +e
-          VERSION=$(npx rs-compute-version --ci)
+          RESULT=$(npx rs-compute-version --ci --json)
           STATUS=$?
+          VERSION=$(echo "$RESULT" | jq -r '.nextVersion // empty')
+
+          echo "$RESULT"
           echo "status=$STATUS" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
