@@ -18,10 +18,10 @@ jobs:
   release-pr:
     # Only runs when:
     # - The PR has been merged
-    # - And the branch is NOT release/v/*
+    # - The PR does NOT have the "release" label
     if: >
       github.event.pull_request.merged == true &&
-      !startsWith(github.event.pull_request.head.ref, 'release/v/')
+      !contains(join(github.event.pull_request.labels.*.name, ','), 'release')
     runs-on: ubuntu-latest
 
     steps:
@@ -52,36 +52,38 @@ jobs:
 
       # Compute next version to release
       - name: Compute next version
-        id: semver
+        id: compute
         run: |
-          VERSION=$(npx rs-compute-version || echo "")
+          set +e
+          VERSION=$(npx rs-compute-version --ci)
+          STATUS=$?
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Stop if no release needed
-        if: steps.semver.outputs.version == ''
-        run: exit 0
-
       - name: Bump package.json
-        run: npm version ${{ steps.semver.outputs.version }} --no-git-tag-version
+        if: steps.compute.outputs.status == '0'
+        run: npm version ${{ steps.compute.outputs.version }} --no-git-tag-version
 
       - name: Build
         run: npm run build --if-present
 
       - name: Generate changelog
+        if: steps.compute.outputs.status == '0'
         run: npx rs-generate-changelog
 
       # Automatically create branches, commits, and PRs with peter-evans
       - name: Create Release PR
+        if: steps.compute.outputs.status == '0'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: ":bricks: chore(release): prepare version ${{ steps.semver.outputs.version }} [skip ci]"
-          branch: release/v/${{ steps.semver.outputs.version }}
-          title: ":bricks: chore(release): ${{ steps.semver.outputs.version }}"
+          commit-message: ":bricks: chore(release): prepare version ${{ steps.compute.outputs.version }} [skip ci]"
+          branch: release/${{ steps.compute.outputs.version }}
+          title: ":bricks: chore(release): ${{ steps.compute.outputs.version }}"
           body: |
             This PR contains the release artifacts:
 
-            - Updated `package.json` and `package-lock.json` with version ${{ steps.semver.outputs.version }}
+            - Updated `package.json` and `package-lock.json` with version ${{ steps.compute.outputs.version }}
             - Updated `CHANGELOG.md` with latest changes
             - Generated `/dist` directory with build files (if applicable)
 

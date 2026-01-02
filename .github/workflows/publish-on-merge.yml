@@ -20,10 +20,14 @@ jobs:
   publish:
     # Only runs when:
     # - The PR has been merged
-    # - And the branch is release/v/*
+    # - The PR has the "release" label
+    # - The PR title starts with ":bricks: chore(release):"
+    # - The PR was created by a bot
     if: >
       github.event.pull_request.merged == true &&
-      startsWith(github.event.pull_request.head.ref, 'release/v/')
+      startsWith(github.event.pull_request.title, ':bricks: chore(release):') &&
+      contains(join(github.event.pull_request.labels.*.name, ','), 'release') &&
+      github.event.pull_request.user.type == 'Bot'
     runs-on: ubuntu-latest
 
     steps:
