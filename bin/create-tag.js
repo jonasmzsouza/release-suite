@@ -76,7 +76,10 @@ if (DRY_RUN) {
 try {
   run(`git tag -a ${tag} -m "${lastCommitSubject.replace(/"/g, '\\"')}"`, false);
   run(`git push origin ${tag}`, false);
-  console.log(`✔ Tag ${tag} created and pushed with message: "${lastCommitSubject}"`);
+  console.log(JSON.stringify({
+    tag,
+    lastCommitSubject
+  }, null, 2));
   process.exit(0);
 } catch (err) {
   console.error("❌ Failed to create or push tag.", err);
