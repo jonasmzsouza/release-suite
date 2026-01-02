@@ -2,6 +2,8 @@
 
 Semantic versioning tools for Git-based projects, providing automated version computation, changelog generation and release notes creation.
 
+> Designed for safe, predictable and fully automated releases in GitHub Actions.
+
 ## 🚀 Features
 
 - Automatic version bump based on commit messages
@@ -13,62 +15,55 @@ Semantic versioning tools for Git-based projects, providing automated version co
 - No commit rules enforced on the main project
 - Trusted Publishing (OIDC) — no npm tokens required
 
-## ⚙️ Installation
+## ⚡ Quick Start
 
 ```bash
 npm install release-suite --save-dev
 ```
-
-## 🖥️ CLI Commands
-
-| Command                     | Description                                               |
-| --------------------------- | --------------------------------------------------------- |
-| `rs-compute-version`        | Computes next semantic version based on git commits       |
-| `rs-generate-changelog`     | Generates `CHANGELOG.md`                                  |
-| `rs-generate-release-notes` | Generates `RELEASE_NOTES.md` using GitHub PRs             |
-| `rs-preview`                | Generates preview changelog & release notes               |
-| `rs-create-tag`             | Create and push a git tag based on `package.json` version |
-
-> 💡 **Note about execution**
->
-> - When using these commands via `npm run`, they can be referenced directly (`rs-*`).
-> - In CI/CD environments (e.g. GitHub Actions), always invoke them using `npx`
->   (e.g. `npx rs-generate-changelog`) to ensure proper binary resolution.
-
-## 🧠 Usage
 
 Add to your project's `package.json`:
 
 ```json
 {
   "scripts": {
-    "version:compute": "rs-compute-version",
-    "changelog": "rs-generate-changelog",
-    "release:notes": "rs-generate-release-notes",
     "preview": "rs-preview create",
-    "preview:clear": "rs-preview remove",
-    "create-tag": "rs-create-tag",
-    "create-tag:compute": "rs-create-tag --compute",
-    "create-tag:dry": "rs-create-tag --dry-run"
+    "preview:clean": "rs-preview remove",
+    "compute-version": "rs-compute-version",
+    "compute-version:json": "rs-compute-version --json",
+    "changelog": "rs-generate-changelog",
+    "release-notes": "rs-generate-release-notes"
   }
 }
 ```
 
-## 🤖 CI/CD Usage (GitHub Actions)
+Generate preview files without touching your real changelog:
 
-> ℹ️ In CI/CD environments, always use `npx` when invoking `rs-*` commands.
+```bash
+npm run preview
+```
 
-This project is designed to be used in automated pipelines.
+Remove previews:
 
-Typical flow:
+```bash
+npm run preview:clear
+```
 
-1. Create a Release PR (compute version, changelog, build)
-2. Review and merge the Release PR into `main`
-3. Publish the release (tag, npm, GitHub Release)
+## 🖥️ CLI Commands
 
-Example workflows:
-- create-release-pr.yml
-- publish-on-merge.yml
+| Command                     | Description                                         |
+| --------------------------- | --------------------------------------------------- |
+| `rs-compute-version`        | Computes next semantic version based on git commits |
+| `rs-generate-changelog`     | Generates `CHANGELOG.md`                            |
+| `rs-generate-release-notes` | Generates `RELEASE_NOTES.md` using GitHub PRs       |
+| `rs-preview`                | Generates preview changelog & release notes         |
+
+Each command follows a strict and predictable CLI contract (exit codes, stdout, JSON mode).
+
+> 💡 **Note about execution**
+>
+> - When using these commands via `npm run`, they can be referenced directly (`rs-*`).
+> - In CI/CD environments (e.g. GitHub Actions), always invoke them using `npx`
+>   (e.g. `npx rs-generate-changelog`) to ensure proper binary resolution.
 
 ## 🔁 Release Flow
 
@@ -87,13 +82,13 @@ Actions:
 - Updates `package.json`
 - Generates `CHANGELOG.md`
 - Builds the project (if applicable)
-- Opens a **Release PR** (`release/v/x.y.z`)
+- Opens a **Release PR** (`release/x.y.z`)
 
 ### 2️⃣ Publish Release
 
 Triggered when:
 
-- A Release PR (`release/v/*`) is merged into `main`
+- A Release PR (`release/x.y.z`) with `release` label is merged into `main`
 
 Actions:
 
@@ -110,7 +105,7 @@ Actions:
 flowchart TD
     A[Feature / Fix PR] -->|Merge| B[main]
     B -->|create-release-pr.yml| C[Create Release PR]
-    C -->|release/v/x.y.z| D[Review & Merge]
+    C -->|release/x.y.z| D[Review & Merge]
     D -->|publish-on-merge.yml| E[Publish Release]
     E --> F[npm Publish]
     E --> G[GitHub Release]
@@ -120,7 +115,21 @@ flowchart TD
 ✔️ No npm tokens or secrets required (OIDC)  
 ✔️ No release loops  
 ✔️ Safe for concurrent merges  
-✔️ Reusable in any project 
+✔️ Reusable in any project
+
+## 🤖 CI/CD Usage (GitHub Actions)
+
+> ℹ️ In CI/CD environments, always use `npx` when invoking `rs-*` commands.
+
+This project is designed to be used in automated pipelines.
+
+Typical flow:
+
+1. Create a Release PR (compute version, changelog, build)
+2. Review and merge the Release PR into `main`
+3. Publish the release (tag, npm, GitHub Release)
+
+👉 See full examples in [`docs/ci.md`](./docs/ci.md)
 
 ## 📦 Publishing to npm (Trusted Publishing)
 
@@ -130,19 +139,12 @@ This project uses **npm [Trusted Publishing](https://docs.npmjs.com/trusted-publ
 - Publishing is handled entirely by GitHub Actions
 - Triggered automatically when a Release PR is merged into `main`
 
-## 🔍 Preview Mode
+## 🧩 Programmatic API
 
-Generate preview files without touching your real changelog:
+Release Suite also exposes a programmatic API for advanced use cases
+(integration tests, custom tooling, orchestration).
 
-```bash
-npm run preview
-```
-
-Remove previews:
-
-```bash
-npm run preview:clear
-```
+👉 See full API documentation in [`docs/api.md`](./docs/api.md)
 
 ## 🛠 Development (Maintainers)
 
@@ -166,29 +168,6 @@ npm link
 # or
 npm install ../release-suite
 ```
-
-## 🧩 Programmatic API
-
-Each `bin/*.js` script now also exposes a programmatic API so you can call
-the core logic directly from Node without spawning child processes. This
-is useful for integration tests, tooling, or when you need to orchestrate
-the actions from another script.
-
-Examples:
-
-```js
-import { computeVersion } from 'release-suite/bin/compute-version.js';
-import { generateChangelog } from 'release-suite/bin/generate-changelog.js';
-import { generateReleaseNotes } from 'release-suite/bin/generate-release-notes.js';
-
-const next = await computeVersion({ isPreview: true, cwd: process.cwd() });
-await generateChangelog({ isPreview: true, cwd: process.cwd() });
-await generateReleaseNotes({ isPreview: true, cwd: process.cwd() });
-```
-
-Notes:
-- `cwd` controls the directory where git/package.json operations run (pass your consumer project's root).
-- `isPreview: true` writes preview files (`CHANGELOG.preview.md`, `RELEASE_NOTES.preview.md`) and relaxes some external requirements (e.g., `gh`).
 
 ## 📄 License
 

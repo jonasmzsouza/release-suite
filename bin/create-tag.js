@@ -3,11 +3,14 @@ import { execSync } from "node:child_process";
 import fs from "node:fs";
 import { computeVersion } from "./compute-version.js";
 
-function run(cmd, silent = false) {
-  return execSync(cmd, {
-    stdio: silent ? "pipe" : "inherit",
-    encoding: "utf8",
-  }).trim();
+function run(cmd, captureOutput = true) {
+  if (captureOutput) {
+    const output = execSync(cmd, { encoding: "utf8", stdio: "pipe" });
+    return output ? output.trim() : "";
+  } else {
+    execSync(cmd, { stdio: "inherit" });
+  }
+  return "";
 }
 
 const args = process.argv.slice(2);
@@ -19,7 +22,8 @@ let version;
 if (USE_COMPUTED) {
   console.log("🔢 Computing version dynamically...");
   try {
-    version = computeVersion({ isPreview: false });
+    const obj = computeVersion({ cwd: process.cwd() });
+    version = obj.nextVersion;
   } catch {
     console.error("❌ Failed to compute version.");
     process.exit(1);
@@ -27,7 +31,7 @@ if (USE_COMPUTED) {
 
   if (!version) {
     console.log("ℹ No version bump detected. Skipping tag creation.");
-    process.exit(0);
+    process.exit(10);
   }
 } else {
   console.log("📦 Using version from package.json...");
@@ -41,7 +45,6 @@ if (USE_COMPUTED) {
 }
 
 const tag = version;
-
 console.log(`🔖 Release version: ${tag}`);
 
 // check if tag exists
@@ -53,14 +56,29 @@ try {
   // OK
 }
 
-if (DRY_RUN) {
-  console.log("🧪 Dry-run mode enabled.");
-  console.log(`Would create and push tag: ${tag}`);
-  console.log(`VERSION=${tag}`);
-  process.exit(0);
+let lastCommitSubject = "";
+try {
+  lastCommitSubject = run("git log -1 --pretty=%s");
+  console.log(`🔖 Tag message: ${lastCommitSubject}`);
+} catch {
+  console.error("❌ Failed to get last commit message.");
+  process.exit(1);
 }
 
-run(`git tag ${tag}`);
-run(`git push origin ${tag}`);
+if (DRY_RUN) {
+  console.log("🧪 Dry-run mode enabled.");
+  console.log(`Would create annotated tag: ${tag}`);
+  console.log(`Message: "${lastCommitSubject}"`);
+  console.log(`VERSION=${tag}`);
+  process.exit(5);
+}
 
-console.log(`✔ Tag ${tag} created and pushed`);
+try {
+  run(`git tag -a ${tag} -m "${lastCommitSubject.replace(/"/g, '\\"')}"`, false);
+  run(`git push origin ${tag}`, false);
+  console.log(`✔ Tag ${tag} created and pushed with message: "${lastCommitSubject}"`);
+  process.exit(0);
+} catch (err) {
+  console.error("❌ Failed to create or push tag.", err);
+  process.exit(1);
+}
