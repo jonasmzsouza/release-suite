@@ -19,9 +19,11 @@
     "preview": "node bin/preview.js create",
     "preview:clean": "node bin/preview.js remove",
     "compute-version": "node bin/compute-version.js",
+    "compute-version:ci": "node bin/compute-version.js --ci --json",
     "compute-version:json": "node bin/compute-version.js --json",
     "changelog": "node bin/generate-changelog.js",
     "release-notes": "node bin/generate-release-notes.js",
+    "create-tag": "node bin/create-tag.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
@@ -49,7 +51,7 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/jonasmzsouza/release-suite/issues"
-  },  
+  },
   "devDependencies": {
     "esbuild": "^0.25.11",
     "eslint": "9.38.0",

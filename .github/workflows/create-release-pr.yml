@@ -23,7 +23,6 @@ jobs:
       github.event.pull_request.merged == true &&
       !contains(join(github.event.pull_request.labels.*.name, ','), 'release')
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,14 +47,14 @@ jobs:
         run: npm ci
 
       - name: Install release-suite locally (self usage)
-        run: npm install . 
+        run: npm install .
 
       # Compute next version to release
       - name: Compute next version
         id: compute
         run: |
           set +e
-          RESULT=$(npx rs-compute-version --ci --json)
+          RESULT=$(npm run compute-version:ci)
           STATUS=$?
           VERSION=$(echo "$RESULT" | jq -r '.nextVersion // empty')
 
@@ -64,19 +63,19 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Bump package.json
-        if: steps.compute.outputs.status == '0'
+        if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
         run: npm version ${{ steps.compute.outputs.version }} --no-git-tag-version
 
       - name: Build
         run: npm run build --if-present
 
       - name: Generate changelog
-        if: steps.compute.outputs.status == '0'
-        run: npx rs-generate-changelog
+        if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
+        run: npm run changelog
 
       # Automatically create branches, commits, and PRs with peter-evans
       - name: Create Release PR
-        if: steps.compute.outputs.status == '0'
+        if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
