@@ -54,7 +54,7 @@ jobs:
         id: compute
         run: |
           set +e
-          RESULT=$(npm run compute-version:ci)
+          RESULT=$(node bin/compute-version.js --ci --json)
           STATUS=$?
           VERSION=$(echo "$RESULT" | jq -r '.nextVersion // empty')
 
@@ -71,7 +71,7 @@ jobs:
 
       - name: Generate changelog
         if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
-        run: npm run changelog
+        run: node bin/generate-changelog.js
 
       # Automatically create branches, commits, and PRs with peter-evans
       - name: Create Release PR

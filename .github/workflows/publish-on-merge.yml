@@ -51,7 +51,7 @@ jobs:
         id: tag
         run: |
           set +e
-          RESULT=$(npm run create-tag)
+          RESULT=$(node bin/create-tag.js)
           STATUS=$?
           TAG=$(echo "$RESULT" | jq -r '.tag // empty')
 
@@ -67,7 +67,7 @@ jobs:
       # Generate release notes for GitHub Release
       - name: Generate GitHub Release Notes
         if: steps.tag.outputs.status == '0' && steps.tag.outputs.tag != ''
-        run: npm run release-notes
+        run: node bin/generate-release-notes.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
