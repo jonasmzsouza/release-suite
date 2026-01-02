@@ -10,20 +10,17 @@
     "rs-compute-version": "bin/compute-version.js",
     "rs-generate-changelog": "bin/generate-changelog.js",
     "rs-generate-release-notes": "bin/generate-release-notes.js",
-    "rs-preview": "bin/preview.js",
-    "rs-create-tag": "bin/create-tag.js"
+    "rs-preview": "bin/preview.js"
   },
   "scripts": {
     "lint": "eslint bin/",
     "lint:fix": "eslint bin/ --fix",
-    "version:compute": "node bin/compute-version.js",
-    "changelog": "node bin/generate-changelog.js",
-    "release:notes": "node bin/generate-release-notes.js",
     "preview": "node bin/preview.js create",
-    "preview:clear": "node bin/preview.js remove",
-    "create-tag": "node bin/create-tag.js",
-    "create-tag:compute": "node bin/create-tag.js --compute",
-    "create-tag:dry": "node bin/create-tag.js --dry-run",
+    "preview:clean": "node bin/preview.js remove",
+    "compute-version": "node bin/compute-version.js",
+    "compute-version:json": "node bin/compute-version.js --json",
+    "changelog": "node bin/generate-changelog.js",
+    "release-notes": "node bin/generate-release-notes.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
