@@ -6,6 +6,10 @@ import globals from "globals";
 
 export default [
   js.configs.recommended,
+
+  // =====================
+  // BIN (CLI)
+  // =====================
   {
     files: ["bin/**/*.js"],
     plugins: {
@@ -19,8 +23,46 @@ export default [
       },
     },
     rules: {
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "no-console": "off",
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "prefer-const": "warn",
+      eqeqeq: ["error", "always"],
+      curly: ["error", "all"],
+      "import/order": [
+        "warn",
+        {
+          groups: [
+            "builtin",
+            "external",
+            "internal",
+            "parent",
+            "sibling",
+            "index",
+          ],
+          alphabetize: { order: "asc", caseInsensitive: true },
+        },
+      ],
+    },
+  },
+
+  // =====================
+  // LIB (reusable code)
+  // =====================
+  {
+    files: ["lib/**/*.js"],
+    plugins: {
+      import: pluginImport,
+    },
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      "no-console": "warn",
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "prefer-const": "warn",
       eqeqeq: ["error", "always"],
       curly: ["error", "all"],
