@@ -10,7 +10,8 @@
     "rs-compute-version": "bin/compute-version.js",
     "rs-generate-changelog": "bin/generate-changelog.js",
     "rs-generate-release-notes": "bin/generate-release-notes.js",
-    "rs-preview": "bin/preview.js"
+    "rs-preview": "bin/preview.js",
+    "rs-create-tag": "bin/create-tag.js"
   },
   "scripts": {
     "lint": "eslint bin/",

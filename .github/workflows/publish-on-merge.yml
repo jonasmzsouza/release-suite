@@ -48,24 +48,29 @@ jobs:
       - name: Install release-suite locally (self usage)
         run: npm install .
 
-      - name: Build
-        run: npm run build --if-present
-
       - name: Create Git Tag
-        run: npx rs-create-tag
+        id: tag
+        run: |
+          set +e
+          npx rs-create-tag
+          STATUS=$?
+          echo "status=$STATUS" >> $GITHUB_OUTPUT     
 
       # Publish to npm using Trusted Publishing (OIDC)
       - name: Publish to npm (Trusted Publishing)
+        if: steps.tag.outputs.status == '0'
         run: npm publish
 
       # Generate release notes for GitHub Release
       - name: Generate GitHub Release Notes
+        if: steps.tag.outputs.status == '0'
         run: npx rs-generate-release-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Create GitHub Release with notes and attach built assets
       - name: Create GitHub Release + Tag
+        if: steps.tag.outputs.status == '0'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

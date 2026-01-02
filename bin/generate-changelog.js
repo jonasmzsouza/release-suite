@@ -156,7 +156,8 @@ export function generateChangelog({ isPreview = process.env.PREVIEW_MODE === "tr
   const sections = [];
 
   const lastTag = tags[0] || null;
-  const nextVersion = computeVersion({ isPreview, cwd }) || "Unreleased";
+  const obj = computeVersion({ cwd }) || "Unreleased";
+  const nextVersion = obj.nextVersion || "Unreleased";
 
   if (nextVersion === "Unreleased" && isPreview) {
     console.log("ℹ No version bump detected, showing Unreleased section.");
