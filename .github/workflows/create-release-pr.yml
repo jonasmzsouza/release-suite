@@ -73,6 +73,15 @@ jobs:
         if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
         run: node bin/generate-changelog.js
 
+      - name: Detect dist directory
+        id: dist
+        run: |
+          if [ -d dist ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       # Automatically create branches, commits, and PRs with peter-evans
       - name: Create Release PR
         if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
@@ -95,4 +104,4 @@ jobs:
           add-paths: |
             package.json
             CHANGELOG.md
-            dist/**
+            ${{ steps.dist.outputs.exists == 'true' && 'dist/**' || '' }}
