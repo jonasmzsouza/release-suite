@@ -59,25 +59,37 @@ jobs:
         id: compute
         run: |
           set +e
-          VERSION=$(npx rs-compute-version --ci)
+          RESULT=$(npx rs-compute-version --ci --json)
           STATUS=$?
+          VERSION=$(echo "$RESULT" | jq -r '.nextVersion // empty')
+
+          echo "$RESULT"
           echo "status=$STATUS" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Bump package.json
-        if: steps.compute.outputs.status == '0'
+        if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
         run: npm version ${{ steps.compute.outputs.version }} --no-git-tag-version
 
       - name: Build
         run: npm run build --if-present
 
       - name: Generate changelog
-        if: steps.compute.outputs.status == '0'
+        if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
         run: npx rs-generate-changelog
+
+      - name: Detect dist directory
+        id: dist
+        run: |
+          if [ -d dist ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
 
       # Automatically create branches, commits, and PRs with peter-evans
       - name: Create Release PR
-        if: steps.compute.outputs.status == '0'
+        if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -97,7 +109,8 @@ jobs:
           add-paths: |
             package.json
             CHANGELOG.md
-            dist/**
+            ${{ steps.dist.outputs.exists == 'true' && 'dist/**' || '' }}
+
 ```
 
 ## `publish-on-merge.yml`
@@ -152,31 +165,46 @@ jobs:
       - name: Install release-suite locally (self usage)
         run: npm install .
 
-      - name: Build
-        run: npm run build --if-present
-
       - name: Create Git Tag
-        run: npx rs-create-tag
+        id: tag
+        run: |
+          set +e
+          RESULT=$(npx create-tag)
+          STATUS=$?
+          TAG=$(echo "$RESULT" | jq -r '.tag // empty')
+
+          echo "$RESULT"
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       # Publish to npm using Trusted Publishing (OIDC)
       - name: Publish to npm (Trusted Publishing)
+        if: steps.tag.outputs.status == '0' && steps.tag.outputs.tag != ''
         run: npm publish
 
       # Generate release notes for GitHub Release
       - name: Generate GitHub Release Notes
+        if: steps.tag.outputs.status == '0' && steps.tag.outputs.tag != ''
         run: npx rs-generate-release-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Create GitHub Release with notes and attach built assets
       - name: Create GitHub Release + Tag
+        if: steps.tag.outputs.status == '0' && steps.tag.outputs.tag != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=$(node -p "require('./package.json').version")
 
+          ASSETS=()
+          if [ -d dist ]; then
+            ASSETS=(dist/**)
+          fi
+
           gh release create "$VERSION" \
             --title "$VERSION" \
             --notes-file RELEASE_NOTES.md \
-            ./dist/* || true
+            "${ASSETS[@]}"
+
 ```
