@@ -1,6 +1,6 @@
 {
   "name": "release-suite",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Semantic versioning tools for Git-based projects, providing automated version computation, changelog generation and release notes creation.",
   "type": "module",
   "publishConfig": {
