@@ -79,7 +79,12 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
 
+          ASSETS=()
+          if [ -d dist ]; then
+            ASSETS=(dist/**)
+          fi
+
           gh release create "$VERSION" \
             --title "$VERSION" \
             --notes-file RELEASE_NOTES.md \
-            ./dist/* || true
+            "${ASSETS[@]}"
