@@ -56,27 +56,20 @@ try {
   // OK
 }
 
-let lastCommitSubject = "";
-try {
-  lastCommitSubject = run("git log -1 --pretty=%s");
-  console.log(`🔖 Tag message: ${lastCommitSubject}`);
-} catch {
-  console.error("❌ Failed to get last commit message.");
-  process.exit(1);
-}
+const tagMessage = `Release ${tag}`;
 
 if (DRY_RUN) {
   console.log("🧪 Dry-run mode enabled.");
   console.log(`Would create annotated tag: ${tag}`);
-  console.log(`Message: "${lastCommitSubject}"`);
+  console.log(`Message: "${tagMessage}"`);
   console.log(`VERSION=${tag}`);
   process.exit(5);
 }
 
 try {
-  run(`git tag -a ${tag} -m "${lastCommitSubject.replace(/"/g, '\\"')}"`, false);
+  run(`git tag -a ${tag} -m "${tagMessage}"`, false);
   run(`git push origin ${tag}`, false);
-  console.log(`✔ Tag ${tag} created and pushed with message: "${lastCommitSubject}"`);
+  console.log(JSON.stringify({ tag, tagMessage }, null, 2));
   process.exit(0);
 } catch (err) {
   console.error("❌ Failed to create or push tag.", err);

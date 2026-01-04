@@ -127,7 +127,7 @@ Custom prefixes and emojis are supported as long as they resolve to these semant
 
 If your repository uses **Squash & Merge**, configure GitHub to:
 
-> **“Use PR title as commit message”**
+> **“Use Pull request title and commit details”**
 
 And enforce **Conventional Commits** in PR titles:
 
