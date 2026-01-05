@@ -82,6 +82,10 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Stage dist if exists
+        if: steps.dist.outputs.exists == 'true'
+        run: git add dist
+
       # Automatically create branches, commits, and PRs with peter-evans
       - name: Create Release PR
         if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
@@ -104,4 +108,3 @@ jobs:
           add-paths: |
             package.json
             CHANGELOG.md
-            ${{ steps.dist.outputs.exists == 'true' && 'dist/**' || '' }}

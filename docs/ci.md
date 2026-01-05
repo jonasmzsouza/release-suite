@@ -87,6 +87,10 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Stage dist if exists
+        if: steps.dist.outputs.exists == 'true'
+        run: git add dist          
+
       # Automatically create branches, commits, and PRs with peter-evans
       - name: Create Release PR
         if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
@@ -109,7 +113,6 @@ jobs:
           add-paths: |
             package.json
             CHANGELOG.md
-            ${{ steps.dist.outputs.exists == 'true' && 'dist/**' || '' }}
 
 ```
 
@@ -119,8 +122,7 @@ jobs:
 name: Publish Release
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
       - main
 
@@ -137,15 +139,9 @@ concurrency:
 jobs:
   publish:
     # Only runs when:
-    # - The PR has been merged
-    # - The PR has the "release" label
-    # - The PR title starts with ":bricks: chore(release):"
-    # - The PR was created by a bot
+    # - The commit message starts with ":bricks: chore(release):"
     if: >
-      github.event.pull_request.merged == true &&
-      startsWith(github.event.pull_request.title, ':bricks: chore(release):') &&
-      contains(join(github.event.pull_request.labels.*.name, ','), 'release') &&
-      github.event.pull_request.user.type == 'Bot'
+      startsWith(github.event.head_commit.message, ':bricks: chore(release):')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
