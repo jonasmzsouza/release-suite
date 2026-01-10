@@ -3,6 +3,9 @@ import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { COMMIT_RE, COMMIT_EMOJI_RE } from "../lib/constants.js";
+import { normalizeCommits, parseCommit } from "../lib/git.js";
+import { normalizeSubject } from "../lib/versioning.js";
 import { computeVersion } from "./compute-version.js";
 
 function run(cmd, cwd = process.cwd()) {
@@ -37,26 +40,22 @@ function getAllTags(cwd = process.cwd()) {
 
 function getCommitsBetween(from, to, cwd = process.cwd()) {
   const range = from ? `${from}..${to}` : to;
+
   try {
-    return run(`git log ${range} --pretty=format:%H%x1f%s%x1f%b`, cwd)
-      .split("\n")
+    return run(
+      `git log ${range} --pretty=format:%H%x1f%s%x1f%B%x1e`,
+      cwd
+    )
+      .split("\x1e")
+      .map(c => c.trim())
       .filter(Boolean);
   } catch {
     return [];
   }
 }
 
-function parseCommit(line) {
-  const [hash, subject = "", body = ""] = line.split("\x1f");
-  return { hash, subject: subject.trim(), body: body.trim() };
-}
-
 function cleanSubject(subject) {
-  let s = subject.replace(/^(:\S+: )?/, "");
-  s = s.replace(
-    /^(feat|fix|refactor|docs|chore|style|test|build|perf|ci|raw|cleanup|remove)(\(.+\))?(!)?:\s*/i,
-    ""
-  );
+  const s = normalizeSubject(subject).replace(COMMIT_RE, "");
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
@@ -78,9 +77,6 @@ function categorize(commits) {
     remove: [],
   };
 
-  const reType =
-    /^(:\S+: )?(feat|fix|refactor|docs|chore|style|test|build|perf|ci|raw|cleanup|remove)(\(.+\))?(!)?:/i;
-
   for (const c of commits) {
     const { subject, body } = c;
 
@@ -89,7 +85,7 @@ function categorize(commits) {
       continue;
     }
 
-    const match = subject.match(reType);
+    const match = subject.match(COMMIT_EMOJI_RE);
     const desc = cleanSubject(subject);
 
     if (!match) {
@@ -98,7 +94,14 @@ function categorize(commits) {
     }
 
     const type = match[2].toLowerCase();
-    (buckets[type] || buckets.chore).push({ desc, hash: c.hash });
+    const finalDesc = desc || cleanSubject(subject) || subject;
+
+    if (finalDesc && finalDesc.trim()) {
+      (buckets[type] || buckets.chore).push({
+        desc: finalDesc.trim(),
+        hash: c.hash
+      });
+    }
   }
 
   return buckets;
@@ -128,12 +131,18 @@ function buildSection(version, buckets) {
   let hasContent = false;
 
   for (const [key, title] of sections) {
-    if (buckets[key].length) {
-      hasContent = true;
-      out.push(`${title}\n`);
-      for (const c of buckets[key]) out.push(`- ${c.desc}`);
-      out.push("");
+    const items = buckets[key]
+      .map(c => c.desc && c.desc.trim())
+      .filter(Boolean);
+
+    if (!items.length) continue;
+
+    hasContent = true;
+    out.push(`${title}\n`);
+    for (const desc of items) {
+      out.push(`- ${desc}`);
     }
+    out.push("");
   }
 
   if (!hasContent) out.push("_No changes._\n");
@@ -165,7 +174,10 @@ export function generateChangelog({ isPreview = process.env.PREVIEW_MODE === "tr
 
   // Always generate the upcoming version (preview & release)
   if (!changelogHasVersion(CHANGELOG_FILE, nextVersion, cwd)) {
-    const commits = getCommitsBetween(lastTag, "HEAD", cwd).map(parseCommit);
+    const commits = normalizeCommits(
+      getCommitsBetween(lastTag, "HEAD", cwd).map(parseCommit)
+    );
+
 
     if (commits.length) {
       const buckets = categorize(commits);
@@ -180,7 +192,11 @@ export function generateChangelog({ isPreview = process.env.PREVIEW_MODE === "tr
 
     if (changelogHasVersion(CHANGELOG_FILE, tag, cwd)) continue;
 
-    const commits = getCommitsBetween(previous, tag, cwd).map(parseCommit);
+    const commits = normalizeCommits(
+      getCommitsBetween(previous, tag, cwd)
+        .map(parseCommit)
+    );
+
     if (!commits.length) continue;
 
     const buckets = categorize(commits);
