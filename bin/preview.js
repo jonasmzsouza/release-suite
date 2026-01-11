@@ -21,11 +21,16 @@ if (!["create", "remove"].includes(action)) {
 if (action === "create") {
   console.log("🔧 Generating preview files...");
 
-  const versionOutput = computeVersion({ isPreview: true });
+  const versionResult = computeVersion({ isPreview: true });
 
-  if (versionOutput) {
-    console.log("🔖 Computed version:");
-    console.log(versionOutput);
+  console.log("🔖 Computed version:");
+  console.log(versionResult);
+
+  if (!versionResult.hasRelease) {
+    console.log(
+      `⚠ No preview generated (${versionResult.reason}). Base version: ${versionResult.baseVersion}`
+    );
+    process.exit(0);
   }
 
   generateChangelog({ isPreview: true });
