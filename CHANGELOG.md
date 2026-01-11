@@ -1,3 +1,17 @@
+## 1.0.1
+
+### 🐛 Fixes
+
+- Harden changelog generation for squash commits (#13)
+
+### 📚 Docs
+
+- Update ci/cd examples with trigger adjustment
+
+### 🔁 CI
+
+- Adjust trigger in workflow
+
 ## 1.0.0
 
 ### 💥 Breaking Changes
