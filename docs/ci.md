@@ -27,22 +27,13 @@ jobs:
     if: >
       github.event.pull_request.merged == true &&
       !contains(join(github.event.pull_request.labels.*.name, ','), 'release')
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
-
-      # Avoids loops: ignores commits created by bots
-      - name: Skip if last commit is from bot
-        run: |
-          last_author="$(git log -1 --pretty=format:'%an')"
-          echo "Last author: $last_author"
-          if [[ "$last_author" == *"github-actions"* ]]; then
-            echo "Commit created by bot. Canceling workflow."
-            exit 0
-          fi
 
       - uses: actions/setup-node@v4
         with:
@@ -89,7 +80,7 @@ jobs:
 
       - name: Stage dist if exists
         if: steps.dist.outputs.exists == 'true'
-        run: git add dist          
+        run: git add dist
 
       # Automatically create branches, commits, and PRs with peter-evans
       - name: Create Release PR
@@ -113,7 +104,6 @@ jobs:
           add-paths: |
             package.json
             CHANGELOG.md
-
 ```
 
 ## `publish-on-merge.yml`
@@ -122,7 +112,8 @@ jobs:
 name: Publish Release
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - main
 
@@ -139,9 +130,14 @@ concurrency:
 jobs:
   publish:
     # Only runs when:
-    # - The commit message starts with ":bricks: chore(release):"
+    # - The PR has been merged
+    # - The PR has the "release" label
+    # - The PR title starts with ":bricks: chore(release):"
     if: >
-      startsWith(github.event.head_commit.message, ':bricks: chore(release):')
+      github.event.pull_request.merged == true &&
+      contains(join(github.event.pull_request.labels.*.name, ','), 'release') &&
+      startsWith(github.event.pull_request.title, ':bricks: chore(release):')
+
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -202,5 +198,4 @@ jobs:
             --title "$VERSION" \
             --notes-file RELEASE_NOTES.md \
             "${ASSETS[@]}"
-
 ```
