@@ -107,10 +107,8 @@ Actions:
 flowchart TD
     A[Feature / Fix PR] -->|Merge| B[main]
     B -->|create-release-pr.yml| C[Create Release PR]
-    C -->|release/x.y.z| D[Review & Merge]
+    C -->|Manual Review & Merge| D[pull_request.closed (release)]
     D -->|publish-on-merge.yml| E[Publish Release]
-    E --> F[npm Publish]
-    E --> G[GitHub Release]
 ```
 
 ✔️ Fully automated releases  
