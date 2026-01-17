@@ -22,22 +22,13 @@ jobs:
     if: >
       github.event.pull_request.merged == true &&
       !contains(join(github.event.pull_request.labels.*.name, ','), 'release')
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
-
-      # Avoids loops: ignores commits created by bots
-      - name: Skip if last commit is from bot
-        run: |
-          last_author="$(git log -1 --pretty=format:'%an')"
-          echo "Last author: $last_author"
-          if [[ "$last_author" == *"github-actions"* ]]; then
-            echo "Commit created by bot. Canceling workflow."
-            exit 0
-          fi
 
       - uses: actions/setup-node@v4
         with:
