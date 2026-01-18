@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
-import { computeVersion } from "./compute-version.js";
+import { computeVersion } from "../lib/compute-version.js";
 import { generateChangelog } from "./generate-changelog.js";
 import { generateReleaseNotes } from "./generate-release-notes.js";
 

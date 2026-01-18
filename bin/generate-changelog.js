@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 
 import { renderChangelog, insertReleaseSection, normalizeLegacyChangelog } from "../lib/changelog.js";
 import { normalizeCommits, categorizeCommits } from "../lib/commits.js";
+import { computeVersion } from "../lib/compute-version.js";
 import { getLastTag, getCommits, parseCommit } from "../lib/git.js";
-import { computeVersion } from "./compute-version.js";
 
 
 /* ===========================
