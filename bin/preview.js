@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import { generateChangelog } from "../lib/changelog.js";
 import { computeVersion } from "../lib/compute-version.js";
-import { generateChangelog } from "./generate-changelog.js";
 import { generateReleaseNotes } from "./generate-release-notes.js";
 
 process.env.PREVIEW_MODE = "true";
