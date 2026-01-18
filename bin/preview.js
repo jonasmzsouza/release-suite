@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import { generateChangelog } from "../lib/changelog.js";
 import { computeVersion } from "../lib/compute-version.js";
-import { generateReleaseNotes } from "./generate-release-notes.js";
+import { generateReleaseNotes } from "../lib/release-notes.js";
 
 process.env.PREVIEW_MODE = "true";
 
