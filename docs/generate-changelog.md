@@ -49,6 +49,7 @@ type GenerateChangelogResult =
   | {
       generated: true;
       version: string;
+      commitsAnalyzed: number;
       file: string;
       preview: boolean;
     }
@@ -56,6 +57,7 @@ type GenerateChangelogResult =
       generated: false;
       version: string;
       reason: "no-release" | "already-exists";
+      commitsAnalyzed: number;
     };
 ```
 
@@ -67,21 +69,21 @@ The CLI wrapper (`rs-generate-changelog`) is a thin layer on top of `generateCha
 
 ### Flags
 
-| Flag        | Description                    |
-| ----------- | ------------------------------ |
-| `--json`    | Output result as JSON          |
-| `--preview` | Write `CHANGELOG.preview.md`   |
+| Flag        | Description                  |
+| ----------- | ---------------------------- |
+| `--json`    | Output result as JSON        |
+| `--preview` | Write `CHANGELOG.preview.md` |
 
 ---
 
 ## 🚦 CLI Exit Codes (Contract)
 
-| Exit Code | Meaning                       |
-| --------- | ----------------------------- |
-| `0`       | Changelog generated           |
-| `10`      | No release detected           |
-| `11`      | Version already exists        |
-| `1`       | Unexpected error              |
+| Exit Code | Meaning                |
+| --------- | ---------------------- |
+| `0`       | Changelog generated    |
+| `10`      | No release detected    |
+| `11`      | Version already exists |
+| `1`       | Unexpected error       |
 
 > CI pipelines **must** rely on exit codes, not stdout parsing.
 
