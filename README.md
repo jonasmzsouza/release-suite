@@ -107,7 +107,7 @@ Actions:
 flowchart TD
     A[Feature / Fix PR] -->|Merge| B[main]
     B -->|create-release-pr.yml| C[Create Release PR]
-    C -->|Manual Review & Merge| D[pull_request.closed (release)]
+    C -->|Manual Review & Merge| D[pull_request.closed]
     D -->|publish-on-merge.yml| E[Publish Release]
 ```
 

@@ -1,8 +1,21 @@
 # 📦 computeVersion
 
-`computeVersion()` is the core engine of **Release Suite**. It is responsible for analyzing Git history and determining whether a new semantic version should be released.
+`computeVersion()` is the core engine of **Release Suite**.  
+It is responsible for analyzing Git history and determining whether a new semantic version should be released.
 
-This document defines its **official, immutable contract**, behavior, limitations, and CLI integration rules.
+This document defines its **official, immutable contract**, covering both **Programmatic API (lib)** and **CLI wrapper (bin)**.
+
+---
+
+## 🧱 Architecture Overview
+
+Release Suite follows a **two-layer model**:
+
+- `lib/` → Programmatic API (pure, deterministic, side-effect free)
+- `bin/` → CLI wrapper (I/O, logs, exit codes)
+
+`computeVersion()` lives in `lib/compute-version.js`
+The CLI command `rs-compute-version` lives in `bin/compute-version.js`
 
 ---
 

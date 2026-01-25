@@ -3,6 +3,20 @@ import { execSync } from "node:child_process";
 import fs from "node:fs";
 import { computeVersion } from "./compute-version.js";
 
+/**
+ * Execute a shell command.
+ *
+ * - If captureOutput is true, runs the command and returns trimmed stdout as string.
+ * - If captureOutput is false, streams stdio to the current process (used for git push/tag).
+ *
+ * Notes:
+ * - Uses execSync for simplicity and to preserve the original synchronous behavior.
+ * - Throws when the command returns non-zero; callers should catch exceptions.
+ *
+ * @param {string} cmd - Shell command to execute.
+ * @param {boolean} [captureOutput=true] - Whether to capture and return stdout.
+ * @returns {string} Trimmed stdout when captureOutput=true, otherwise empty string.
+ */
 function run(cmd, captureOutput = true) {
   if (captureOutput) {
     const output = execSync(cmd, { encoding: "utf8", stdio: "pipe" });
@@ -13,6 +27,25 @@ function run(cmd, captureOutput = true) {
   return "";
 }
 
+/**
+ * Script behavior / CLI contract:
+ *
+ * Flags:
+ *  - --dry-run   : Do not create or push the tag, print planned actions and exit code 5.
+ *  - --compute   : Compute the next version dynamically using computeVersion({ cwd: process.cwd() }).
+ *                  If no nextVersion is found, exits with code 10 (no bump).
+ *
+ * Exit codes:
+ *  - 0  : Tag created and pushed successfully.
+ *  - 5  : Dry-run (planned actions printed).
+ *  - 10 : No version bump detected when using --compute (nothing to tag).
+ *  - 1  : Generic failure (I/O, git error, missing package.json, etc.).
+ *
+ * Behavior:
+ *  - When not using --compute, the script reads package.json from the current working directory.
+ *  - When using --compute, computeVersion is run with cwd equal to process.cwd() so it operates
+ *    on the consumer repository, not on the package internals.
+ */
 const args = process.argv.slice(2);
 const DRY_RUN = args.includes("--dry-run");
 const USE_COMPUTED = args.includes("--compute");
