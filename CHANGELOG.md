@@ -1,3 +1,13 @@
+# Changelog
+
+## 2.0.0
+
+### 💥 Breaking Changes
+- Consolidate semantic contracts across CLI, APIs, and docs (#16)
+
+### 🤖 CI
+- Harden workflow triggers and merge conditions (#15)
+
 ## 1.0.1
 
 ### 🐛 Fixes
