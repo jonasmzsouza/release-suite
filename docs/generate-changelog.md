@@ -38,6 +38,13 @@ generateChangelog(options?: {
 }): GenerateChangelogResult
 ```
 
+### Options
+
+| Option      | Description                                                                                        |
+| ----------- | -------------------------------------------------------------------------------------------------- |
+| `cwd`       | Working directory containing the git repository and CHANGELOG file. Defaults to `process.cwd()`    |
+| `isPreview` | When true, write output to `CHANGELOG.preview.md` and do not consider "already exists" as blocking |
+
 ---
 
 ## 📜 Official Return Contract (Frozen)

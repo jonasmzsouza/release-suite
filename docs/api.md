@@ -1,20 +1,17 @@
 # API Documentation
 
-Each `bin/*.js` script now also exposes a programmatic API so you can call
-the core logic directly from Node without spawning child processes. This
-is useful for integration tests, tooling, or when you need to orchestrate
-the actions from another script.
+While the scripts in `bin/*.js` contain only CLI wrappers, the programmatic APIs are exposed in the scripts in `lib/*.js`. This way you can call the core logic directly from Node without generating child processes. This is useful for integration tests, tools, or when you need to orchestrate the actions of another script.
 
 Examples:
 
 ```js
-import { computeVersion } from "release-suite/bin/compute-version.js";
-import { generateChangelog } from "release-suite/bin/generate-changelog.js";
-import { generateReleaseNotes } from "release-suite/bin/generate-release-notes.js";
+import { computeVersion } from "release-suite/lib/compute-version.js";
+import { generateChangelog } from "release-suite/lib/changelog.js";
+import { generateReleaseNotes } from "release-suite/lib/release-notes.js";
 
 const result = computeVersion({ cwd: process.cwd() });
-await generateChangelog({ isPreview: true, cwd: process.cwd() });
-await generateReleaseNotes({ isPreview: true, cwd: process.cwd() });
+await generateChangelog({ cwd: process.cwd(), isPreview: true });
+await generateReleaseNotes({ cwd: process.cwd(), isPreview: true });
 ```
 
 Notes:
@@ -23,6 +20,13 @@ Notes:
 - `isPreview: true` writes preview files (`CHANGELOG.preview.md`, `RELEASE_NOTES.preview.md`) and relaxes some external requirements (e.g., `gh`).
 
 ## computeVersion()
-
-> ℹ️ `computeVersion()` follows a strict, immutable contract.  
+ 
 > See [`compute-version.md`](compute-version.md).
+
+## generateChangelog()
+
+> See [`generate-changelog.md`](generate-changelog.md).
+
+## generateReleaseNotes()
+
+> See [`generate-release-notes.md`](generate-release-notes.md).

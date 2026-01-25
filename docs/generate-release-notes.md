@@ -37,6 +37,13 @@ generateReleaseNotes(options?: {
 }): GenerateReleaseNotesResult
 ```
 
+### Options
+
+| Option      | Description                                                                              |
+| ----------- | ---------------------------------------------------------------------------------------- |
+| `cwd`       | Working directory where Git and `package.json` are resolved. Defaults to `process.cwd()` |
+| `isPreview` | If true, generate a local preview file and skip calling the GitHub API.                  |
+
 ---
 
 ## 📜 Official Return Contract (Frozen)
