@@ -62,6 +62,10 @@ jobs:
         if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
         run: npm version ${{ steps.compute.outputs.version }} --no-git-tag-version
 
+      - name: Sync package-lock.json
+        if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
+        run: npm install --package-lock-only
+
       - name: Build
         run: npm run build --if-present
 
@@ -69,18 +73,11 @@ jobs:
         if: steps.compute.outputs.status == '0' && steps.compute.outputs.version != ''
         run: npx rs-generate-changelog
 
-      - name: Detect dist directory
-        id: dist
+      - name: Stage dist if exists
         run: |
           if [ -d dist ]; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
+            git add dist
           fi
-
-      - name: Stage dist if exists
-        if: steps.dist.outputs.exists == 'true'
-        run: git add dist
 
       # Automatically create branches, commits, and PRs with peter-evans
       - name: Create Release PR
@@ -104,6 +101,7 @@ jobs:
           add-paths: |
             package.json
             CHANGELOG.md
+          delete-branch: true
 ```
 
 ## `publish-on-merge.yml`
