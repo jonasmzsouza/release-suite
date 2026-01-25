@@ -174,12 +174,18 @@ jobs:
         if: steps.tag.outputs.status == '0' && steps.tag.outputs.tag != ''
         run: npm publish
 
+      # Install GitHub CLI
+      - name: Install GitHub CLI
+        run: sudo apt-get update && sudo apt-get install -y gh
+
+      # Authenticate gh CLI using GITHUB_TOKEN
+      - name: Authenticate gh using GITHUB_TOKEN
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
       # Generate release notes for GitHub Release
       - name: Generate GitHub Release Notes
         if: steps.tag.outputs.status == '0' && steps.tag.outputs.tag != ''
         run: npx rs-generate-release-notes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Create GitHub Release with notes and attach built assets
       - name: Create GitHub Release + Tag
@@ -187,7 +193,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=${{ steps.tag.outputs.tag }}
 
           ASSETS=()
           if [ -d dist ]; then
