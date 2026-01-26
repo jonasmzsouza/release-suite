@@ -126,12 +126,6 @@ flowchart TD
 
 This project is designed to be used in automated pipelines.
 
-Typical flow:
-
-1. Create a Release PR (compute version, changelog, build)
-2. Review and merge the Release PR into `main`
-3. Publish the release (tag, npm, GitHub Release)
-
 👉 See full examples in [`docs/ci.md`](./docs/ci.md)
 
 ## 📦 Publishing to npm (Trusted Publishing)
