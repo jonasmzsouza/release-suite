@@ -28,6 +28,8 @@ jobs:
   create:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # Job-level outputs = contract with publish job
     outputs:
@@ -138,14 +140,6 @@ jobs:
       # --------------------------------------------------------
       # Merge Release PR (best-effort)
       # --------------------------------------------------------
-      - name: Install GitHub CLI
-        if: steps.pr.outputs.pull-request-number != ''
-        uses: cli/gh-action@v2
-
-      - name: Authenticate gh
-        if: steps.pr.outputs.pull-request-number != ''
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-
       - name: Merge Release PR
         if: steps.pr.outputs.pull-request-number != ''
         run: |
@@ -195,6 +189,9 @@ jobs:
   publish:
     needs: create
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
 
     if: needs.create.outputs.tag != ''
 
@@ -233,12 +230,6 @@ jobs:
       # --------------------------------------------------------
       # Create GitHub Release with notes and attach built assets
       # --------------------------------------------------------
-      - name: Install GitHub CLI
-        uses: cli/gh-action@v2
-
-      - name: Authenticate gh
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
