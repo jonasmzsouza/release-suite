@@ -1,8 +1,3 @@
-# CI/CD Examples
-
-## `create-and-publish.yml`
-
-```yml
 name: Create & Publish Release
 
 on:
@@ -70,7 +65,7 @@ jobs:
         id: compute
         run: |
           set +e
-          RESULT=$(npx rs-compute-version --ci --json)
+          RESULT=$(node bin/compute-version.js --ci --json)
           STATUS=$?
           VERSION=$(echo "$RESULT" | jq -r '.nextVersion // empty')
 
@@ -99,7 +94,7 @@ jobs:
 
       - name: Generate changelog
         if: steps.compute.outputs.should_publish == 'true'
-        run: npx rs-generate-changelog
+        run: node bin/generate-changelog.js
 
       # --------------------------------------------------------
       # Stage files (dist is optional)
@@ -180,7 +175,7 @@ jobs:
         if: steps.validate.outputs.ok == 'true'
         run: |
           set +e
-          RESULT=$(npx rs-create-tag)
+          RESULT=$(node bin/create-tag.js)
           TAG=$(echo "$RESULT" | jq -r '.tag // empty')
 
           echo "$RESULT"
@@ -228,7 +223,7 @@ jobs:
       # Generate release notes for GitHub Release
       # --------------------------------------------------------
       - name: Generate GitHub Release Notes
-        run: npx rs-generate-release-notes
+        run: node bin/generate-release-notes.js
 
       # --------------------------------------------------------
       # Create GitHub Release with notes and attach built assets
@@ -252,5 +247,3 @@ jobs:
             --title "${{ needs.create.outputs.tag }}" \
             --notes-file RELEASE_NOTES.md \
             "${ASSETS[@]}"
-
-```
