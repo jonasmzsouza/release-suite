@@ -69,35 +69,35 @@ Each command follows a strict and predictable CLI contract (exit codes, stdout, 
 
 ## 🔁 Release Flow
 
-This project follows a **two-step release strategy** designed for safety,
-automation and reusability.
+This project uses an automated, PR-based release strategy
+designed for safety and traceability.
 
-### 1️⃣ Prepare Release (Create Release PR)
+See [Release Process](docs/release-process.md) for details.
+
+### 1️⃣ Create Release PR
 
 Triggered when:
 
 - A PR is merged into `main`
+- Or the workflow is manually dispatched
 
 Actions:
 
 - Computes next semantic version
-- Updates `package.json`
-- Generates `CHANGELOG.md`
+- Updates `package.json` and `CHANGELOG.md`
 - Builds the project (if applicable)
-- Opens a **Release PR** (`release/x.y.z`)
+- Opens and auto-merges a Release PR
+- Creates a Git tag
 
 ### 2️⃣ Publish Release
 
-Triggered when:
-
-- A Release PR (`release/x.y.z`) with `release` label is merged into `main`
+Triggered automatically after the Release PR merge (only if tag exists).
 
 Actions:
 
-- Creates a Git tag
 - Publishes to npm using **Trusted Publishing (OIDC)**
 - Generates GitHub Release Notes
-- Uploads build artifacts (`dist/**`)
+- Uploads build artifacts (`dist/**` if present)
 
 ---
 
@@ -105,10 +105,13 @@ Actions:
 
 ```mermaid
 flowchart TD
-    A[Feature / Fix PR] -->|Merge| B[main]
-    B -->|create-release-pr.yml| C[Create Release PR]
-    C -->|Manual Review & Merge| D[pull_request.closed]
-    D -->|publish-on-merge.yml| E[Publish Release]
+    A[Feature / Fix PR] -->|merge| B[main]
+    B -->|workflow trigger| C[Compute Version]
+    C -->|release needed| D[Create Release PR]
+    D -->|auto-merge| E[main updated]
+    E -->|create tag| F[Git Tag]
+    F -->|publish| G[npm Registry]
+    F -->|release| H[GitHub Release]
 ```
 
 ✔️ Fully automated releases  
