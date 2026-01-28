@@ -8,10 +8,12 @@ Examples:
 import { computeVersion } from "release-suite/lib/compute-version.js";
 import { generateChangelog } from "release-suite/lib/changelog.js";
 import { generateReleaseNotes } from "release-suite/lib/release-notes.js";
+import { createTag } from "release-suite/lib/create-tag.js";
 
 const result = computeVersion({ cwd: process.cwd() });
 await generateChangelog({ cwd: process.cwd(), isPreview: true });
 await generateReleaseNotes({ cwd: process.cwd(), isPreview: true });
+await createTag({ cwd: process.cwd(), compute: true, isPreview: true });
 ```
 
 Notes:
@@ -20,7 +22,7 @@ Notes:
 - `isPreview: true` writes preview files (`CHANGELOG.preview.md`, `RELEASE_NOTES.preview.md`) and relaxes some external requirements (e.g., `gh`).
 
 ## computeVersion()
- 
+
 > See [`compute-version.md`](compute-version.md).
 
 ## generateChangelog()
@@ -30,3 +32,7 @@ Notes:
 ## generateReleaseNotes()
 
 > See [`generate-release-notes.md`](generate-release-notes.md).
+
+## createTag()
+
+> See [`create-tag.md`](create-tag.md).
