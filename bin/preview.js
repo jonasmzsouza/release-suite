@@ -1,75 +1,54 @@
 #!/usr/bin/env node
-import fs from "node:fs";
-import { generateChangelog } from "../lib/changelog.js";
-import { computeVersion } from "../lib/compute-version.js";
-import { generateReleaseNotes } from "../lib/release-notes.js";
+import { fileURLToPath } from "node:url";
+import { preview } from "../lib/preview.js";
 
-/**
- * CLI entrypoint for generating / removing preview artifacts.
- *
- * Purpose:
- *  - When invoked with `create`, computes whether a preview release should be produced and,
- *    if so, writes preview CHANGELOG.preview.md and RELEASE_NOTES.preview.md into the current
- *    working directory (the consuming project).
- *
- *  - When invoked with `remove`, deletes those preview files from the consuming project's cwd.
- *
- * Important notes about path resolution:
- *  - The script calls functions from the package's lib modules (generateChangelog, generateReleaseNotes,
- *    computeVersion) with isPreview=true so those functions can be implemented to respect a `cwd`
- *    argument and create files in the consumer repository.
- *
- * CLI:
- *  - preview.js create  -> generate preview files (exit 0 when generated, 10 if no release)
- *  - preview.js remove  -> remove preview files (exit 0)
- *
- * Environment:
- *  - Sets process.env.PREVIEW_MODE = "true" to hint downstream functions that they should run in preview mode.
- */
+/* ===========================
+ * CLI
+ * =========================== */
 
-process.env.PREVIEW_MODE = "true";
+function main() {
+  const action = process.argv[2];
 
-const filesMap = {
-  changelog: "CHANGELOG.preview.md",
-  notes: "RELEASE_NOTES.preview.md",
-};
-
-const action = process.argv[2];
-
-if (!["create", "remove"].includes(action)) {
-  console.log("Usage: preview.js [create|remove]");
-  process.exit(1);
-}
-
-if (action === "create") {
-  console.log("🔧 Generating preview files...");
-
-  const versionResult = computeVersion({ isPreview: true });
-
-  console.log("🔖 Computed version:");
-  console.log(versionResult);
-
-  if (!versionResult.hasRelease) {
-    console.log(
-      `⚠ No preview generated (${versionResult.reason}). Base version: ${versionResult.baseVersion}`
+  if (!["create", "remove"].includes(action)) {
+    console.error(
+      JSON.stringify(
+        {
+          error: "invalid-usage",
+          message: "Usage: preview.js [create|remove]",
+        },
+        null,
+        2
+      )
     );
-    process.exit(0);
+    process.exit(1);
   }
 
-  generateChangelog({ isPreview: true });
-  generateReleaseNotes({ isPreview: true });
+  try {
+    const result = preview({ action });
 
-  console.log("✅ Preview ready:");
-  console.log(" -", filesMap.changelog);
-  console.log(" -", filesMap.notes);
-  process.exit(0);
+    console.log(JSON.stringify(result, null, 2));
+
+    if (action === "create" && result.generated === false) {
+      process.exit(10);
+    }
+
+    process.exit(0);
+  } catch (err) {
+    console.error(
+      JSON.stringify(
+        {
+          error: "unexpected-error",
+          message: err.message || String(err),
+        },
+        null,
+        2
+      )
+    );
+    process.exit(1);
+  }
 }
 
-if (action === "remove") {
-  console.log("🧹 Removing preview files...");
-  for (const f of Object.values(filesMap)) {
-    if (fs.existsSync(f)) fs.unlinkSync(f);
-  }
-  console.log("✔ Preview cleared.");
-  process.exit(0);
+const __filename = fileURLToPath(import.meta.url);
+if (process.argv[1] === __filename) {
+  main();
 }
