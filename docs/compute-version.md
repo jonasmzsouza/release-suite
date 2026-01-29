@@ -157,14 +157,6 @@ This ensures `computeVersion()` can reliably detect semantic intent.
 
 The CLI wrapper (`rs-compute-version`) is a thin layer on top of `computeVersion()`.
 
-### Flags
-
-| Flag        | Description                              |
-| ----------- | ---------------------------------------- |
-| `--json`    | Outputs the full result as JSON          |
-| `--ci`      | Enables CI-friendly logging (future use) |
-| `--preview` | Semantic alias (no behavior change)      |
-
 ---
 
 ## 🚦 CLI Exit Codes (Contract)

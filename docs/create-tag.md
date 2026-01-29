@@ -151,7 +151,6 @@ The CLI wrapper (`rs-create-tag`) is a thin layer over `createTag()`.
 
 | Flag        | Description                                        |
 | ----------- | -------------------------------------------------- |
-| `--compute` | Compute next version dynamically using Git history |
 | `--preview` | Preview (dry-run) mode                             |
 
 ---

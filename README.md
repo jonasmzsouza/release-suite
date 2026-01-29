@@ -29,10 +29,9 @@ Add to your project's `package.json`:
     "preview": "rs-preview create",
     "preview:clean": "rs-preview remove",
     "compute-version": "rs-compute-version",
-    "compute-version:ci": "rs-compute-version --ci --json",
-    "compute-version:json": "rs-compute-version --json",
     "changelog": "rs-generate-changelog",
-    "release-notes": "rs-generate-release-notes"
+    "release-notes": "rs-generate-release-notes",
+    "create-tag": "rs-create-tag"
   }
 }
 ```
@@ -51,13 +50,13 @@ npm run preview:clear
 
 ## 🖥️ CLI Commands
 
-| Command                     | Description                                               |
-| --------------------------- | --------------------------------------------------------- |
-| `rs-compute-version`        | Computes next semantic version based on git commits       |
-| `rs-generate-changelog`     | Generates `CHANGELOG.md`                                  |
-| `rs-generate-release-notes` | Generates `RELEASE_NOTES.md` using GitHub PRs             |
-| `rs-preview`                | Generates preview changelog & release notes               |
-| `rs-create-tag`             | Create and push a git tag based on `package.json` version |
+| Command                     | Description                                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `rs-compute-version`        | Computes next semantic version based on git commits                                                    |
+| `rs-generate-changelog`     | Generates `CHANGELOG.md`                                                                               |
+| `rs-generate-release-notes` | Generates `RELEASE_NOTES.md` using the same logic as the **GitHub UI “Generate release notes” button** |
+| `rs-preview`                | Generates preview changelog & release notes                                                            |
+| `rs-create-tag`             | Create and push a git tag based on `package.json` version                                              |
 
 Each command follows a strict and predictable CLI contract (exit codes, stdout, JSON mode).
 

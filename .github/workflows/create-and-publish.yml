@@ -67,7 +67,7 @@ jobs:
         id: compute
         run: |
           set +e
-          RESULT=$(node bin/compute-version.js --ci --json)
+          RESULT=$(node bin/compute-version.js)
           STATUS=$?
           VERSION=$(echo "$RESULT" | jq -r '.nextVersion // empty')
 

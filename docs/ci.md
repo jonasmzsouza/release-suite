@@ -72,7 +72,7 @@ jobs:
         id: compute
         run: |
           set +e
-          RESULT=$(npx rs-compute-version --ci --json)
+          RESULT=$(npx rs-compute-version)
           STATUS=$?
           VERSION=$(echo "$RESULT" | jq -r '.nextVersion // empty')
 

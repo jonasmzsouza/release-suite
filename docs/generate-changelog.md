@@ -78,7 +78,6 @@ The CLI wrapper (`rs-generate-changelog`) is a thin layer on top of `generateCha
 
 | Flag        | Description                  |
 | ----------- | ---------------------------- |
-| `--json`    | Output result as JSON        |
 | `--preview` | Write `CHANGELOG.preview.md` |
 
 ---

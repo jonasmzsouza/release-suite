@@ -80,7 +80,6 @@ The CLI wrapper (`rs-generate-release-notes`) is a thin layer on top of `generat
 
 | Flag        | Description                      |
 | ----------- | -------------------------------- |
-| `--json`    | Output result as JSON            |
 | `--preview` | Write `RELEASE_NOTES.preview.md` |
 
 ---
