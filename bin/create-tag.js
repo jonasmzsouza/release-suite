@@ -1,17 +1,11 @@
 #!/usr/bin/env node
 import { fileURLToPath } from "node:url";
 import { createTag } from "../lib/create-tag.js";
+import { parseFlags } from "../lib/utils.js";
 
 /* ===========================
  * CLI
  * =========================== */
-
-function parseFlags(argv) {
-  return {
-    compute: argv.includes("--compute"),
-    preview: argv.includes("--preview"),
-  };
-}
 
 /**
  * Exit codes (CONTRACT):
@@ -22,12 +16,14 @@ function parseFlags(argv) {
  * 1  -> unexpected error
  */
 function main() {
-  const flags = parseFlags(process.argv.slice(2));
+
+  const flags = parseFlags(process.argv.slice(2), {
+    preview: "--preview",
+  });
 
   let result;
   try {
     result = createTag({
-      compute: flags.compute,
       isPreview: flags.preview,
     });
   } catch (err) {

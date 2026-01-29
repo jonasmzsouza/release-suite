@@ -1,27 +1,11 @@
 #!/usr/bin/env node
 import { fileURLToPath } from "node:url";
 import { generateChangelog } from "../lib/changelog.js";
+import { parseFlags } from "../lib/utils.js";
 
 /* ===========================
  * CLI
  * =========================== */
-
-/**
- * Parse CLI flags for the changelog generator.
- *
- * Recognized flags:
- *  - --preview : generate preview changelog (writes to CHANGELOG.preview.md)
- *  - --json    : print JSON result object instead of human messages
- *
- * @param {string[]} argv - CLI args (e.g. process.argv.slice(2))
- * @returns {{preview:boolean, json:boolean}}
- */
-function parseFlags(argv) {
-  return {
-    preview: argv.includes("--preview"),
-    json: argv.includes("--json"),
-  };
-}
 
 /**
  * Main CLI entrypoint for changelog generation.
@@ -38,20 +22,12 @@ function parseFlags(argv) {
  *  - 1  -> unexpected error
  */
 function main() {
-  const flags = parseFlags(process.argv.slice(2));
+  const flags = parseFlags(process.argv.slice(2), {
+    preview: "--preview",
+  });
   const result = generateChangelog({ isPreview: flags.preview });
 
-  if (flags.json) {
-    console.log(JSON.stringify(result, null, 2));
-  } else if (result.generated) {
-    console.log(
-      `✔ Changelog generated (${result.file}) for version ${result.version}`
-    );
-  } else {
-    console.error(
-      `ℹ Changelog not generated (${result.reason}) for version ${result.version}`
-    );
-  }
+  console.log(JSON.stringify(result, null, 2));
 
   if (result.generated) process.exit(0);
   if (result.reason === "no-release") process.exit(10);

@@ -1,27 +1,11 @@
 #!/usr/bin/env node
 import { fileURLToPath } from "node:url";
 import { generateReleaseNotes } from "../lib/release-notes.js";
+import { parseFlags } from "../lib/utils.js";
 
 /* ===========================
  * CLI
  * =========================== */
-
-/**
- * Parse CLI flags for the release-notes generator.
- *
- * Recognized flags:
- *  - --preview : generate preview release notes (writes to RELEASE_NOTES.preview.md)
- *  - --json    : print JSON result object instead of human messages
- *
- * @param {string[]} argv - CLI args (e.g. process.argv.slice(2))
- * @returns {{preview:boolean, json:boolean}}
- */
-function parseFlags(argv) {
-  return {
-    preview: argv.includes("--preview"),
-    json: argv.includes("--json"),
-  };
-}
 
 /**
  * Main CLI entrypoint for release-notes generation.
@@ -39,7 +23,9 @@ function parseFlags(argv) {
  *  - 1  -> unexpected error
  */
 function main() {
-  const flags = parseFlags(process.argv.slice(2));
+  const flags = parseFlags(process.argv.slice(2), {
+    preview: "--preview",
+  });
   const result = generateReleaseNotes({
     isPreview: flags.preview,
   });

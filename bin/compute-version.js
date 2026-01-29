@@ -7,25 +7,6 @@ import { computeVersion } from "../lib/compute-version.js";
  * =========================== */
 
 /**
- * Parses an array of command-line arguments and returns which known flags are present.
- *
- * Recognized flags:
- *  - "--ci"
- *  - "--json"
- *  - "--preview"
- *
- * @param {string[]} argv - Array of command-line arguments (e.g. process.argv.slice(2)).
- * @returns {{ci: boolean, json: boolean, preview: boolean}} An object with boolean properties indicating presence of each flag.
- */
-function parseFlags(argv) {
-  return {
-    ci: argv.includes("--ci"),
-    json: argv.includes("--json"),
-    preview: argv.includes("--preview"),
-  };
-}
-
-/**
  * Main CLI entrypoint that computes the next release version, prints the result,
  * and exits the process according to a predetermined contract.
  *
@@ -56,18 +37,9 @@ function parseFlags(argv) {
  * @see computeVersion
  */
 function main() {
-  const flags = parseFlags(process.argv.slice(2));
   const result = computeVersion();
 
-  if (flags.json) {
-    console.log(JSON.stringify(result, null, 2));
-  } else if (result.hasRelease) {
-    console.log(result.nextVersion);
-  } else {
-    console.error(
-      `No release generated (${result.reason}). Base version: ${result.baseVersion}`
-    );
-  }
+  console.log(JSON.stringify(result, null, 2));
 
   if (result.hasRelease) process.exit(0);
   if (result.reason === "no-bump-detected") process.exit(10);
