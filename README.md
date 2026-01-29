@@ -10,7 +10,7 @@ Semantic versioning tools for Git-based projects, providing automated version co
 - Conventional commit parsing (custom prefixes supported)
 - Auto-generated `CHANGELOG.md`
 - Auto-generated `RELEASE_NOTES.md` using GitHub CLI (gh)
-- Local preview mode (`CHANGELOG.preview.md`, `RELEASE_NOTES.preview.md`)
+- Local dry-run mode (`CHANGELOG.dry-run.md`, `RELEASE_NOTES.dry-run.md`)
 - CI/CD ready for GitHub Actions
 - No commit rules enforced on the main project
 - Trusted Publishing (OIDC) — no npm tokens required
@@ -26,8 +26,8 @@ Add to your project's `package.json`:
 ```json
 {
   "scripts": {
-    "preview": "rs-preview create",
-    "preview:clean": "rs-preview remove",
+    "dry-run": "rs-dry-run create",
+    "dry-run:clean": "rs-dry-run remove",
     "compute-version": "rs-compute-version",
     "changelog": "rs-generate-changelog",
     "release-notes": "rs-generate-release-notes",
@@ -36,16 +36,16 @@ Add to your project's `package.json`:
 }
 ```
 
-Generate preview files without touching your real changelog:
+Generate dry-run files without touching your real changelog:
 
 ```bash
-npm run preview
+npm run dry-run
 ```
 
-Remove previews:
+Remove dry-run files:
 
 ```bash
-npm run preview:clear
+npm run dry-run:clear
 ```
 
 ## 🖥️ CLI Commands
@@ -55,7 +55,7 @@ npm run preview:clear
 | `rs-compute-version`        | Computes next semantic version based on git commits                                                    |
 | `rs-generate-changelog`     | Generates `CHANGELOG.md`                                                                               |
 | `rs-generate-release-notes` | Generates `RELEASE_NOTES.md` using the same logic as the **GitHub UI “Generate release notes” button** |
-| `rs-preview`                | Generates preview changelog & release notes                                                            |
+| `rs-dry-run`                | Generates dry-run changelog & release notes                                                            |
 | `rs-create-tag`             | Create and push a git tag based on `package.json` version                                              |
 
 Each command follows a strict and predictable CLI contract (exit codes, stdout, JSON mode).
@@ -153,7 +153,7 @@ In this case, run the scripts directly with Node.js:
 node bin/compute-version.js
 node bin/generate-changelog.js
 node bin/generate-release-notes.js
-node bin/preview.js create
+node bin/dry-run.js create
 node bin/create-tag.js
 ```
 

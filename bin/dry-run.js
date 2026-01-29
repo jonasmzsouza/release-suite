@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { fileURLToPath } from "node:url";
-import { preview } from "../lib/preview.js";
+import { dryRun } from "../lib/dry-run.js";
 
 /* ===========================
  * CLI
@@ -14,7 +14,7 @@ function main() {
       JSON.stringify(
         {
           error: "invalid-usage",
-          message: "Usage: preview.js [create|remove]",
+          message: "Usage: dry-run.js [create|remove]",
         },
         null,
         2
@@ -24,7 +24,7 @@ function main() {
   }
 
   try {
-    const result = preview({ action });
+    const result = dryRun({ action });
 
     console.log(JSON.stringify(result, null, 2));
 

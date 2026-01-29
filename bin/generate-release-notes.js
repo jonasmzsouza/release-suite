@@ -11,8 +11,7 @@ import { parseFlags } from "../lib/utils.js";
  * Main CLI entrypoint for release-notes generation.
  *
  * Behavior:
- *  - Calls generateReleaseNotes({ isPreview: flags.preview }).
- *  - If --json is passed, prints the full result as JSON (pretty).
+ *  - Calls generateReleaseNotes({ dryRun: flags.dryRun }).
  *  - Maps generator result.reason -> process.exit codes according to the contract below.
  *
  * Exit codes (contract):
@@ -24,10 +23,10 @@ import { parseFlags } from "../lib/utils.js";
  */
 function main() {
   const flags = parseFlags(process.argv.slice(2), {
-    preview: "--preview",
+    dryRun: "--dry-run",
   });
   const result = generateReleaseNotes({
-    isPreview: flags.preview,
+    dryRun: flags.dryRun,
   });
 
   console.log(JSON.stringify(result, null, 2));

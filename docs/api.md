@@ -9,19 +9,19 @@ import { computeVersion } from "release-suite/lib/compute-version.js";
 import { generateChangelog } from "release-suite/lib/changelog.js";
 import { generateReleaseNotes } from "release-suite/lib/release-notes.js";
 import { createTag } from "release-suite/lib/create-tag.js";
-import { preview } from "release-suite/lib/preview.js";
+import { dryRun } from "release-suite/lib/dry-run.js";
 
 const result = computeVersion({ cwd: process.cwd() });
-await generateChangelog({ cwd: process.cwd(), isPreview: true });
-await generateReleaseNotes({ cwd: process.cwd(), isPreview: true });
-await createTag({ cwd: process.cwd(), compute: true, isPreview: true });
-await preview({ cwd: process.cwd(), action: "create" });
+await generateChangelog({ cwd: process.cwd(), dryRun: true });
+await generateReleaseNotes({ cwd: process.cwd(), dryRun: true });
+await createTag({ cwd: process.cwd(), compute: true, dryRun: true });
+await dryRun({ cwd: process.cwd(), action: "create" });
 ```
 
 Notes:
 
 - `cwd` controls the directory where git/package.json operations run (pass your consumer project's root).
-- `isPreview: true` writes preview files (`CHANGELOG.preview.md`, `RELEASE_NOTES.preview.md`) and relaxes some external requirements (e.g., `gh`).
+- `dryRun: true` writes dry-run files (`CHANGELOG.dry-run.md`, `RELEASE_NOTES.dry-run.md`) and relaxes some external requirements (e.g., `gh`).
 
 ## computeVersion()
 
@@ -39,6 +39,6 @@ Notes:
 
 > See [`create-tag.md`](create-tag.md).
 
-## preview()
+## dryRun()
 
-> See [`preview.md`](preview.md).
+> See [`dry-run.md`](dry-run.md).

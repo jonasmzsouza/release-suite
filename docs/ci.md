@@ -191,7 +191,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     if: needs.create.outputs.tag != ''
 
@@ -243,5 +243,4 @@ jobs:
             --title "${{ needs.create.outputs.tag }}" \
             --notes-file RELEASE_NOTES.md \
             "${ASSETS[@]}"
-
 ```

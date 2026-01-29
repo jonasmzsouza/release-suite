@@ -18,13 +18,13 @@ import { parseFlags } from "../lib/utils.js";
 function main() {
 
   const flags = parseFlags(process.argv.slice(2), {
-    preview: "--preview",
+    dryRun: "--dry-run",
   });
 
   let result;
   try {
     result = createTag({
-      isPreview: flags.preview,
+      dryRun: flags.dryRun,
     });
   } catch (err) {
     console.error(

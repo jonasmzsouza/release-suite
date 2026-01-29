@@ -22,7 +22,7 @@ The core API uses **GitHub APIs** (via GH CLI authentication).
 - Generate GitHub-style release notes
 - Match GitHub UI output exactly
 - Persist notes to disk
-- Support preview mode for CI
+- Support dry-run mode for CI
 
 ---
 
@@ -33,16 +33,16 @@ The core API uses **GitHub APIs** (via GH CLI authentication).
 ```ts
 generateReleaseNotes(options?: {
   cwd?: string;
-  isPreview?: boolean;
+  dryRun?: boolean;
 }): GenerateReleaseNotesResult
 ```
 
 ### Options
 
-| Option      | Description                                                                              |
-| ----------- | ---------------------------------------------------------------------------------------- |
-| `cwd`       | Working directory where Git and `package.json` are resolved. Defaults to `process.cwd()` |
-| `isPreview` | If true, generate a local preview file and skip calling the GitHub API.                  |
+| Option   | Description                                                                              |
+| -------- | ---------------------------------------------------------------------------------------- |
+| `cwd`    | Working directory where Git and `package.json` are resolved. Defaults to `process.cwd()` |
+| `dryRun` | If true, generate a local dry-run file and skip calling the GitHub API.                  |
 
 ---
 
@@ -57,7 +57,7 @@ type GenerateReleaseNotesResult =
       version: any;
       previousTag: string | null;
       file: string;
-      preview: boolean;
+      dryRun: boolean;
       reason?: undefined;
     }
   | {
@@ -66,7 +66,7 @@ type GenerateReleaseNotesResult =
       version: any;
       previousTag?: undefined;
       file?: undefined;
-      preview?: undefined;
+      dryRun?: undefined;
     };
 ```
 
@@ -80,7 +80,7 @@ The CLI wrapper (`rs-generate-release-notes`) is a thin layer on top of `generat
 
 | Flag        | Description                      |
 | ----------- | -------------------------------- |
-| `--preview` | Write `RELEASE_NOTES.preview.md` |
+| `--dry-run` | Write `RELEASE_NOTES.dry-run.md` |
 
 ---
 

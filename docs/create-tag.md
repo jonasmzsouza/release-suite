@@ -1,7 +1,7 @@
 # 📦 createTag
 
 `createTag()` is responsible for creating and pushing Git tags in a controlled, contract-driven way.
-It supports **computed releases**, **preview (dry-run) execution**, and **CI-safe exit signaling**.
+It supports **computed releases**, **dry-run execution**, and **CI-safe exit signaling**.
 
 This document defines its **official, immutable contract**, covering both **Programmatic API (lib)** and **CLI wrapper (bin)**.
 
@@ -24,7 +24,7 @@ This document defines its **official, immutable contract**, covering both **Prog
 
 - Create an annotated Git tag for a release
 - Optionally compute the next version using `computeVersion`
-- Support preview/dry-run execution
+- Support dry-run execution
 - Provide deterministic JSON output for CI pipelines
 
 ---
@@ -37,7 +37,7 @@ This document defines its **official, immutable contract**, covering both **Prog
 createTag(options?: {
   cwd?: string;
   compute?: boolean;
-  isPreview?: boolean;
+  dryRun?: boolean;
 }): CreateTagResult
 ```
 
@@ -47,7 +47,7 @@ createTag(options?: {
 | --------- | ---------------------------------------------------------------------------------------- |
 | `cwd`     | Working directory where Git and `package.json` are resolved. Defaults to `process.cwd()` |
 | `compute` | If true, computes the next version using `computeVersion()`                              |
-| `preview` | Preview mode (dry-run). No git side effects should be executed by the caller             |
+| `dryRun`  | dry-run mode. No git side effects should be executed by the caller                       |
 
 ---
 
@@ -59,13 +59,13 @@ createTag(options?: {
 type CreateTagResult =
   | {
       created: true;
-      preview: boolean;
+      dryRun: boolean;
       tag: string;
       tagMessage: string;
     }
   | {
       created: false;
-      preview: boolean;
+      dryRun: boolean;
       reason: "no-bump" | "already-exists";
       tag?: string;
       tagMessage?: string;
@@ -83,7 +83,7 @@ Example:
 ```json
 {
   "created": true,
-  "preview": false,
+  "dryRun": false,
   "tag": "2.0.0",
   "tagMessage": "Release 2.0.0"
 }
@@ -98,7 +98,7 @@ Example:
 ```json
 {
   "created": false,
-  "preview": false,
+  "dryRun": false,
   "reason": "no-bump"
 }
 ```
@@ -108,7 +108,7 @@ Example:
 ```json
 {
   "created": false,
-  "preview": false,
+  "dryRun": false,
   "reason": "already-exists",
   "tag": "1.2.3",
   "tagMessage": "Release 1.2.3"
@@ -117,25 +117,25 @@ Example:
 
 ---
 
-## 🧪 Preview Mode
+## 🧪 Dry-run Mode
 
-Preview mode represents a `dry-run intent`, not a separate execution path.
+Dry-run mode represents a `dry-run intent`, not a separate execution path.
 
-- `preview: true` is always reflected in the return object
-- The CLI decides how to interpret preview results
-- The Core API does not branch logic based on preview flags
+- `dryRun: true` is always reflected in the return object
+- The CLI decides how to interpret dryRun results
+- The Core API does not branch logic based on dryRun flags
 - Can be used in conjunction with the `--compute` flag
 
 Example:
 
 ```bash
-node bin/create-tag.js --compute --preview
+node bin/create-tag.js --compute --dry-run
 ```
 
 ```json
 {
-  "created": false, //reflects false because of the preview, even though it has compute
-  "preview": true,
+  "created": false, //reflects false because of the dryRun, even though it has compute
+  "dryRun": true,
   "tag": "1.4.0",
   "tagMessage": "Release 1.4.0"
 }
@@ -149,9 +149,9 @@ The CLI wrapper (`rs-create-tag`) is a thin layer over `createTag()`.
 
 ### Flags
 
-| Flag        | Description                                        |
-| ----------- | -------------------------------------------------- |
-| `--preview` | Preview (dry-run) mode                             |
+| Flag        | Description  |
+| ----------- | ------------ |
+| `--dry-run` | Dry-run mode |
 
 ---
 
@@ -199,7 +199,7 @@ Any breaking change requires:
 - Deterministic
 - CI-safe
 - JSON-first
-- Preview-aware
+- Dry-run-aware
 - Side effects explicitly scoped
 
 `createTag()` does exactly one thing — and does it predictably.

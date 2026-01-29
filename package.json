@@ -10,14 +10,14 @@
     "rs-compute-version": "bin/compute-version.js",
     "rs-generate-changelog": "bin/generate-changelog.js",
     "rs-generate-release-notes": "bin/generate-release-notes.js",
-    "rs-preview": "bin/preview.js",
+    "rs-dry-run": "bin/dry-run.js",
     "rs-create-tag": "bin/create-tag.js"
   },
   "scripts": {
     "lint": "eslint bin/",
     "lint:fix": "eslint bin/ --fix",
-    "preview": "node bin/preview.js create",
-    "preview:clean": "node bin/preview.js remove",
+    "dry-run": "node bin/dry-run.js create",
+    "dry-run:clean": "node bin/dry-run.js remove",
     "compute-version": "node bin/compute-version.js",
     "changelog": "node bin/generate-changelog.js",
     "release-notes": "node bin/generate-release-notes.js",

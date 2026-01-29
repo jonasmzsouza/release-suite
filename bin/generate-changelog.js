@@ -11,9 +11,7 @@ import { parseFlags } from "../lib/utils.js";
  * Main CLI entrypoint for changelog generation.
  *
  * Behavior:
- *  - Calls generateChangelog({ isPreview: flags.preview }).
- *  - If --json is passed, prints the full result as JSON (pretty).
- *  - Prints a human-readable message on success/failure otherwise.
+ *  - Calls generateChangelog({ dryRun: flags.dryRun }).
  *
  * Exit codes (contract):
  *  - 0  -> changelog generated
@@ -23,9 +21,9 @@ import { parseFlags } from "../lib/utils.js";
  */
 function main() {
   const flags = parseFlags(process.argv.slice(2), {
-    preview: "--preview",
+    dryRun: "--dry-run",
   });
-  const result = generateChangelog({ isPreview: flags.preview });
+  const result = generateChangelog({ dryRun: flags.dryRun });
 
   console.log(JSON.stringify(result, null, 2));
 

@@ -20,7 +20,7 @@ All logic lives in `lib/`.
 
 ## 🎯 Purpose
 
-- Generate a `CHANGELOG.md` (or preview)
+- Generate a `CHANGELOG.md` (or dry-run)
 - Insert new releases above the first `##` section
 - Preserve existing content
 - Be safe for CI and squash-merge workflows
@@ -34,16 +34,16 @@ All logic lives in `lib/`.
 ```ts
 generateChangelog(options?: {
   cwd?: string;
-  isPreview?: boolean;
+  dryRun?: boolean;
 }): GenerateChangelogResult
 ```
 
 ### Options
 
-| Option      | Description                                                                                        |
-| ----------- | -------------------------------------------------------------------------------------------------- |
-| `cwd`       | Working directory containing the git repository and CHANGELOG file. Defaults to `process.cwd()`    |
-| `isPreview` | When true, write output to `CHANGELOG.preview.md` and do not consider "already exists" as blocking |
+| Option   | Description                                                                                        |
+| -------- | -------------------------------------------------------------------------------------------------- |
+| `cwd`    | Working directory containing the git repository and CHANGELOG file. Defaults to `process.cwd()`    |
+| `dryRun` | When true, write output to `CHANGELOG.dry-run.md` and do not consider "already exists" as blocking |
 
 ---
 
@@ -58,7 +58,7 @@ type GenerateChangelogResult =
       version: string;
       commitsAnalyzed: number;
       file: string;
-      preview: boolean;
+      dryRun: boolean;
     }
   | {
       generated: false;
@@ -78,7 +78,7 @@ The CLI wrapper (`rs-generate-changelog`) is a thin layer on top of `generateCha
 
 | Flag        | Description                  |
 | ----------- | ---------------------------- |
-| `--preview` | Write `CHANGELOG.preview.md` |
+| `--dry-run` | Write `CHANGELOG.dry-run.md` |
 
 ---
 

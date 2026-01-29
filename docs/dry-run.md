@@ -1,6 +1,6 @@
-# 📦 preview
+# 📦 druRun
 
-The **preview** feature allows consumers to generate or remove _preview artifacts_ (CHANGELOG and Release Notes) **before** performing an actual release.
+The **dryRUn** feature allows consumers to generate or remove _dry-run artifacts_ (CHANGELOG and Release Notes) **before** performing an actual release.
 
 It is designed to be:
 
@@ -9,13 +9,13 @@ It is designed to be:
 - JSON‑first
 - Fully aligned with the Release Suite contracts
 
-Preview never creates tags, never publishes releases, and never mutates version state.
+Dry-run never creates tags, never publishes releases, and never mutates version state.
 
 ---
 
 ## 🧱 Architecture Overview
 
-`preview` follows the **two-layer model** used across Release Suite::
+`dryRun` follows the **two-layer model** used across Release Suite::
 
 - `lib/` → Programmatic API (pure contract, side effects allowed)
 - `bin/` → CLI (I/O, flags, exit codes)
@@ -28,7 +28,7 @@ Preview never creates tags, never publishes releases, and never mutates version 
 
 ## 🎯 Purpose
 
-Preview exists to answer a single question:
+Dry-run exists to answer a single question:
 
 > _“If I were to release now, what would be released?”_
 
@@ -36,16 +36,16 @@ It does so by:
 
 - Running `computeVersion`
 - Determining whether a release would occur
-- Generating **preview-only artifacts** when applicable
+- Generating **dry-run-only artifacts** when applicable
 
 ---
 
 ## Generated Files
 
-When a preview release is detected, the following files are created in the **consumer repository** (current working directory):
+When a dry-run release is detected, the following files are created in the **consumer repository** (current working directory):
 
-- `CHANGELOG.preview.md`
-- `RELEASE_NOTES.preview.md`
+- `CHANGELOG.dry-run.md`
+- `RELEASE_NOTES.dry-run.md`
 
 These files:
 
@@ -60,10 +60,10 @@ These files:
 ### Signature
 
 ```ts
-preview(options?: {
+dryRun(options?: {
   cwd?: string;
   action: "create" | "remove";
-}): PreviewResult
+}): DryRunResult
 ```
 
 ### Options
@@ -80,7 +80,7 @@ preview(options?: {
 ### Type Definition
 
 ```ts
-type PreviewResult =
+type DryRunResult =
   | {
       action: string;
       removed: string[];
@@ -128,8 +128,8 @@ type PreviewResult =
   "generated": true,
   "version": "1.4.0",
   "files": {
-    "changelog": "CHANGELOG.preview.md",
-    "releaseNotes": "RELEASE_NOTES.preview.md"
+    "changelog": "CHANGELOG.dry-run.md",
+    "releaseNotes": "RELEASE_NOTES.dry-run.md"
   }
 }
 ```
@@ -161,7 +161,7 @@ This condition is **not an error**.
 ```json
 {
   "action": "remove",
-  "removed": ["CHANGELOG.preview.md", "RELEASE_NOTES.preview.md"]
+  "removed": ["CHANGELOG.dry-run.md", "RELEASE_NOTES.dry-run.md"]
 }
 ```
 
@@ -171,19 +171,19 @@ Exit code: `0`
 
 ## 🖥 CLI Integration
 
-The CLI wrapper (`rs-preview`) is a thin layer over `preview()`.
+The CLI wrapper (`rs-dry-run`) is a thin layer over `dryRun()`.
 
 ```bash
-npx rs-preview create
-npx rs-preview remove
+npx rs-dry-run create
+npx rs-dry-run remove
 ```
 
 ### Commands
 
 | Command  | Description                                          |
 | -------- | ---------------------------------------------------- |
-| `create` | Generates preview artifacts if a release is detected |
-| `remove` | Removes preview artifacts from the cwd               |
+| `create` | Generates dry-run artifacts if a release is detected |
+| `remove` | Removes dry-run artifacts from the cwd               |
 
 ---
 
@@ -191,7 +191,7 @@ npx rs-preview remove
 
 | Code | Meaning                                   |
 | ---- | ----------------------------------------- |
-| `0`  | Preview generated or removed successfully |
+| `0`  | Dry-run generated or removed successfully |
 | `10` | No release detected (create)              |
 | `1`  | Invalid usage or unexpected error         |
 
@@ -201,7 +201,7 @@ npx rs-preview remove
 
 ## 🚫 Explicit Non-Goals
 
-Preview guarantees that it:
+Dry-run guarantees that it:
 
 - Never creates Git tags
 - Never publishes releases
@@ -209,34 +209,34 @@ Preview guarantees that it:
 - Never logs to stdout/stderr (library)
 - Never exits the process (library)
 
-All side effects are strictly limited to preview files in the provided `cwd`.
+All side effects are strictly limited to dry-run files in the provided `cwd`.
 
 ---
 
 ## Relationship to `computeVersion`
 
-Preview delegates **all release decision logic** to `computeVersion`.
+Dry-run delegates **all release decision logic** to `computeVersion`.
 
-If `computeVersion.hasRelease === false`, preview artifacts are not generated.
+If `computeVersion.hasRelease === false`, dry-run artifacts are not generated.
 
-Preview does not override or reinterpret versioning rules.
+Dry-run does not override or reinterpret versioning rules.
 
 ---
 
 ## Versioning & Breaking Changes
 
-Preview was introduced as part of a **major version** due to:
+Dry-run was introduced as part of a **major version** due to:
 
 - New CLI surface
 - New JSON contracts
 - Explicit separation between CLI and programmatic API
 
-Future changes to preview contracts **must** follow semantic versioning.
+Future changes to dryRun contracts **must** follow semantic versioning.
 
 ---
 
 ## ✅ Summary
 
-Preview is a **safe, inspectable, and deterministic** way to understand what a release _would_ contain — without actually releasing anything.
+Dry-run is a **safe, inspectable, and deterministic** way to understand what a release _would_ contain — without actually releasing anything.
 
 It exists to support CI pipelines, review flows, and release confidence.
