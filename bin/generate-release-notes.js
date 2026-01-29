@@ -44,17 +44,7 @@ function main() {
     isPreview: flags.preview,
   });
 
-  if (flags.json) {
-    console.log(JSON.stringify(result, null, 2));
-  } else if (result.generated) {
-    console.log(
-      `✔ Release notes generated (${result.file}) for version ${result.version}`
-    );
-  } else {
-    console.error(
-      `ℹ Release notes not generated (${result.reason}) for version ${result.version}`
-    );
-  }
+  console.log(JSON.stringify(result, null, 2));
 
   if (result.generated) process.exit(0);
   if (result.reason === "no-release") process.exit(10);
