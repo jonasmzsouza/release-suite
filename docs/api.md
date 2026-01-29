@@ -9,11 +9,13 @@ import { computeVersion } from "release-suite/lib/compute-version.js";
 import { generateChangelog } from "release-suite/lib/changelog.js";
 import { generateReleaseNotes } from "release-suite/lib/release-notes.js";
 import { createTag } from "release-suite/lib/create-tag.js";
+import { preview } from "release-suite/lib/preview.js";
 
 const result = computeVersion({ cwd: process.cwd() });
 await generateChangelog({ cwd: process.cwd(), isPreview: true });
 await generateReleaseNotes({ cwd: process.cwd(), isPreview: true });
 await createTag({ cwd: process.cwd(), compute: true, isPreview: true });
+await preview({ cwd: process.cwd(), action: "create" });
 ```
 
 Notes:
@@ -36,3 +38,7 @@ Notes:
 ## createTag()
 
 > See [`create-tag.md`](create-tag.md).
+
+## preview()
+
+> See [`preview.md`](preview.md).
