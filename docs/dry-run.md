@@ -1,6 +1,6 @@
-# 📦 druRun
+# 📦 dryRun
 
-The **dryRUn** feature allows consumers to generate or remove _dry-run artifacts_ (CHANGELOG and Release Notes) **before** performing an actual release.
+The **dry-run** feature allows consumers to generate or remove _dry-run artifacts_ (CHANGELOG and Release Notes) **before** performing an actual release.
 
 It is designed to be:
 
@@ -15,7 +15,7 @@ Dry-run never creates tags, never publishes releases, and never mutates version 
 
 ## 🧱 Architecture Overview
 
-`dryRun` follows the **two-layer model** used across Release Suite::
+`dry-run` follows the **two-layer model** used across Release Suite::
 
 - `lib/` → Programmatic API (pure contract, side effects allowed)
 - `bin/` → CLI (I/O, flags, exit codes)
@@ -71,7 +71,7 @@ dryRun(options?: {
 | Option   | Description                                                                              |
 | -------- | ---------------------------------------------------------------------------------------- |
 | `cwd`    | Working directory where Git and `package.json` are resolved. Defaults to `process.cwd()` |
-| `action` | wait for one of the usage options: `create`or `remove`                                   |
+| `action` | Operation to perform: `create`or `remove`                                                |
 
 ---
 
@@ -82,37 +82,24 @@ dryRun(options?: {
 ```ts
 type DryRunResult =
   | {
-      action: string;
+      action: "remove";
       removed: string[];
-      generated?: undefined;
-      reason?: undefined;
-      baseVersion?: undefined;
-      commitsAnalyzed?: undefined;
-      version?: undefined;
-      files?: undefined;
     }
   | {
-      action: string;
-      generated: boolean;
-      reason: string;
+      action: "create";
+      generated: false;
+      reason: "no-release";
       baseVersion: string;
       commitsAnalyzed: number;
-      removed?: undefined;
-      version?: undefined;
-      files?: undefined;
     }
   | {
-      action: string;
-      generated: boolean;
-      version: string | undefined;
+      action: "create";
+      generated: true;
+      version: string;
       files: {
         changelog: string;
         releaseNotes: string;
       };
-      removed?: undefined;
-      reason?: undefined;
-      baseVersion?: undefined;
-      commitsAnalyzed?: undefined;
     };
 ```
 
@@ -126,7 +113,7 @@ type DryRunResult =
 {
   "action": "create",
   "generated": true,
-  "version": "1.4.0",
+  "version": "v1.4.0",
   "files": {
     "changelog": "CHANGELOG.dry-run.md",
     "releaseNotes": "RELEASE_NOTES.dry-run.md"
@@ -145,7 +132,7 @@ Exit code: `0`
   "action": "create",
   "generated": false,
   "reason": "no-release",
-  "baseVersion": "1.3.2",
+  "baseVersion": "v1.3.2",
   "commitsAnalyzed": 5
 }
 ```
@@ -231,7 +218,7 @@ Dry-run was introduced as part of a **major version** due to:
 - New JSON contracts
 - Explicit separation between CLI and programmatic API
 
-Future changes to dryRun contracts **must** follow semantic versioning.
+Any breaking change must follow semantic versioning.
 
 ---
 

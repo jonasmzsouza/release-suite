@@ -60,12 +60,14 @@ type ComputeVersionResult =
       nextVersion: string;
       bump: "major" | "minor" | "patch";
       commitsAnalyzed: number;
+      tagPrefix: string;
     }
   | {
       hasRelease: false;
       baseVersion: string;
       reason: "no-bump-detected" | "no-commits";
       commitsAnalyzed: number;
+      tagPrefix: string;
     };
 ```
 
@@ -83,7 +85,8 @@ Example:
   "baseVersion": "1.4.2",
   "nextVersion": "1.5.0",
   "bump": "minor",
-  "commitsAnalyzed": 8
+  "commitsAnalyzed": 8,
+  "tagPrefix": true
 }
 ```
 
@@ -98,7 +101,8 @@ Example:
   "hasRelease": false,
   "reason": "no-commits",
   "baseVersion": "1.4.2",
-  "commitsAnalyzed": 0
+  "commitsAnalyzed": 0,
+  "tagPrefix": true
 }
 ```
 
@@ -109,7 +113,8 @@ Example:
   "hasRelease": false,
   "reason": "no-bump-detected",
   "baseVersion": "1.4.2",
-  "commitsAnalyzed": 5
+  "commitsAnalyzed": 5,
+  "tagPrefix": true
 }
 ```
 

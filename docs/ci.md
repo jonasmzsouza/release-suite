@@ -35,6 +35,7 @@ jobs:
     outputs:
       should_publish: ${{ steps.compute.outputs.should_publish }}
       version: ${{ steps.compute.outputs.version }}
+      tagPrefix: ${{ steps.compute.outputs.tagPrefix }}
       tag: ${{ steps.tag.outputs.tag }}
 
     # Only run when:
@@ -75,6 +76,7 @@ jobs:
           RESULT=$(npx rs-compute-version)
           STATUS=$?
           VERSION=$(echo "$RESULT" | jq -r '.nextVersion // empty')
+          TAG_PREFIX=$(echo "$RESULT" | jq -r '.tagPrefix // ""')
 
           echo "$RESULT"
 
@@ -83,6 +85,7 @@ jobs:
           else
             echo "should_publish=true" >> $GITHUB_OUTPUT
             echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "tagPrefix=$TAG_PREFIX" >> $GITHUB_OUTPUT 
           fi
 
       # --------------------------------------------------------
@@ -122,16 +125,16 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: release/${{ steps.compute.outputs.version }}
-          title: ":bricks: chore(release): ${{ steps.compute.outputs.version }} [skip ci]"
-          commit-message: ":bricks: chore(release): prepare version ${{ steps.compute.outputs.version }} [skip ci]"
+          branch: release/${{ steps.compute.outputs.tagPrefix }}${{ steps.compute.outputs.version }}
+          title: ":bricks: chore(release): ${{ steps.compute.outputs.tagPrefix }}${{ steps.compute.outputs.version }} [skip ci]"
+          commit-message: ":bricks: chore(release): prepare version ${{ steps.compute.outputs.tagPrefix }}${{ steps.compute.outputs.version }} [skip ci]"
           labels: release
           delete-branch: true
           assignees: ${{ github.event.pull_request.merged_by.login }}
           body: |
             Automated release PR.
 
-            - Version bump: ${{ steps.compute.outputs.version }}
+            - Version bump: ${{ steps.compute.outputs.tagPrefix }}${{ steps.compute.outputs.version }}
             - Updated changelog
             - Build artifacts included if present
 

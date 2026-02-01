@@ -54,7 +54,7 @@ generateReleaseNotes(options?: {
 type GenerateReleaseNotesResult =
   | {
       generated: boolean;
-      version: any;
+      currentTag: any;
       previousTag: string | null;
       file: string;
       dryRun: boolean;
@@ -63,7 +63,7 @@ type GenerateReleaseNotesResult =
   | {
       generated: boolean;
       reason: string;
-      version: any;
+      currentTag: any;
       previousTag?: undefined;
       file?: undefined;
       dryRun?: undefined;

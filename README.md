@@ -48,6 +48,18 @@ Remove dry-run files:
 npm run dry-run:clear
 ```
 
+## ⚙️ Configuration
+
+Release Suite can be configured using a `release.config.js` file.
+
+This file controls:
+- Git tag prefix (`v1.2.3` vs `1.2.3`)
+- Emoji usage in changelog rendering
+
+See [`docs/config.md`](docs/config.md) for full documentation.
+
+---
+
 ## 🖥️ CLI Commands
 
 | Command                     | Description                                                                                            |

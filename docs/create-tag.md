@@ -23,9 +23,40 @@ This document defines its **official, immutable contract**, covering both **Prog
 ## 🎯 Purpose
 
 - Create an annotated Git tag for a release
-- Optionally compute the next version using `computeVersion`
+- Apply tag formatting rules from `release.config.js`
 - Support dry-run execution
 - Provide deterministic JSON output for CI pipelines
+
+---
+
+## ⚙️ Configuration
+
+`createTag` consumes the shared Release Suite configuration file:
+
+```bash
+release.config.js
+```
+
+Relevant options:
+
+```javascript
+export default {
+  tag: {
+    prefix: "v" // "v" | ""
+  }
+};
+```
+
+### Tag resolution logic
+
+- `createTag` applies `tag.prefix` when building the final Git tag
+
+| Version | Prefix | Final tag |
+| ------- | ------ | --------- |
+| `1.2.3` | `"v"`  | `v1.2.3`  |
+| `1.2.3` | `""`   | `1.2.3`   |
+
+If the config file or property is missing, defaults are applied silently.
 
 ---
 
@@ -36,18 +67,16 @@ This document defines its **official, immutable contract**, covering both **Prog
 ```ts
 createTag(options?: {
   cwd?: string;
-  compute?: boolean;
   dryRun?: boolean;
 }): CreateTagResult
 ```
 
 ### Options
 
-| Option    | Description                                                                              |
-| --------- | ---------------------------------------------------------------------------------------- |
-| `cwd`     | Working directory where Git and `package.json` are resolved. Defaults to `process.cwd()` |
-| `compute` | If true, computes the next version using `computeVersion()`                              |
-| `dryRun`  | dry-run mode. No git side effects should be executed by the caller                       |
+| Option   | Description                                                                              |
+| -------- | ---------------------------------------------------------------------------------------- |
+| `cwd`    | Working directory where Git and `package.json` are resolved. Defaults to `process.cwd()` |
+| `dryRun` | dry-run mode. No git side effects should be executed by the caller                       |
 
 ---
 
@@ -84,8 +113,8 @@ Example:
 {
   "created": true,
   "dryRun": false,
-  "tag": "2.0.0",
-  "tagMessage": "Release 2.0.0"
+  "tag": "v2.0.0",
+  "tagMessage": "Release v2.0.0"
 }
 ```
 
@@ -93,7 +122,7 @@ Example:
 
 ## 🟡 No Tag Created
 
-### No version bump detected (`--compute`)
+### No version bump detected
 
 ```json
 {
@@ -110,8 +139,8 @@ Example:
   "created": false,
   "dryRun": false,
   "reason": "already-exists",
-  "tag": "1.2.3",
-  "tagMessage": "Release 1.2.3"
+  "tag": "v1.2.3",
+  "tagMessage": "Release v1.2.3"
 }
 ```
 
@@ -122,22 +151,21 @@ Example:
 Dry-run mode represents a `dry-run intent`, not a separate execution path.
 
 - `dryRun: true` is always reflected in the return object
-- The CLI decides how to interpret dryRun results
-- The Core API does not branch logic based on dryRun flags
-- Can be used in conjunction with the `--compute` flag
+- No Git side effects are performed
+- `created` is always `false` in dry-run
 
 Example:
 
 ```bash
-node bin/create-tag.js --compute --dry-run
+node bin/create-tag.js --dry-run
 ```
 
 ```json
 {
-  "created": false, //reflects false because of the dryRun, even though it has compute
+  "created": false,
   "dryRun": true,
-  "tag": "1.4.0",
-  "tagMessage": "Release 1.4.0"
+  "tag": "v1.4.0",
+  "tagMessage": "Release v1.4.0"
 }
 ```
 
