@@ -1,21 +1,29 @@
-# 📦 computeVersion
+# 📦 Version
 
-`computeVersion()` is the core engine of **Release Suite**.  
-It is responsible for analyzing Git history and determining whether a new semantic version should be released.
+This document defines the **official contract** for version calculation in **Release Suite**.
 
-This document defines its **official, immutable contract**, covering both **Programmatic API (lib)** and **CLI wrapper (bin)**.
+It covers:
+
+- Programmatic APIs
+- CLI commands and exit codes
+
+The contract is **stable, deterministic, and CI-safe**.
 
 ---
 
 ## 🧱 Architecture Overview
 
-Release Suite follows a **two-layer model**:
+Version functionality follows the standard **two-layer model** used across Release Suite:
 
-- `lib/` → Programmatic API (pure, deterministic, side-effect free)
-- `bin/` → CLI wrapper (I/O, logs, exit codes)
+- `lib/` → Programmatic API (pure contracts, controlled side effects)
+- `bin/` → CLI wrapper (arguments, stdout, exit codes)
 
-`computeVersion()` lives in `lib/compute-version.js`
-The CLI command `rs-compute-version` lives in `bin/compute-version.js`
+Rules:
+
+- All business logic lives in `lib/`
+- CLI is a thin delegation layer
+- JSON output is deterministic
+- Exit codes are the source of truth for CI
 
 ---
 
@@ -26,13 +34,15 @@ The CLI command `rs-compute-version` lives in `bin/compute-version.js`
 - Decide **if** a release should happen
 - Provide deterministic, machine-readable output
 
-`computeVersion()` **never mutates files**, **never prints logs**, and **never exits the process**.
+Version **never mutates files**, **never prints logs**, and **never exits the process**.
 
 ---
 
 ## 🧠 Programmatic API
 
-### Signature
+### computeVersion()
+
+#### Signature
 
 ```ts
 computeVersion(options?: {
@@ -40,17 +50,9 @@ computeVersion(options?: {
 }): ComputeVersionResult
 ```
 
-### Options
-
-| Option | Description                                                                              |
-| ------ | ---------------------------------------------------------------------------------------- |
-| `cwd`  | Working directory where Git and `package.json` are resolved. Defaults to `process.cwd()` |
-
----
-
 ## 📜 Official Return Contract (Frozen)
 
-### Type Definition
+### ComputeVersionResult
 
 ```ts
 type ComputeVersionResult =
@@ -73,49 +75,24 @@ type ComputeVersionResult =
 
 ---
 
-## 🟢 Release Detected
+## 🖥 CLI
 
-Returned when at least one commit implies a semantic bump.
+The CLI exposes a **single binary** with explicit actions.
 
-Example:
-
-```json
-{
-  "hasRelease": true,
-  "baseVersion": "1.4.2",
-  "nextVersion": "1.5.0",
-  "bump": "minor",
-  "commitsAnalyzed": 8,
-  "tagPrefix": true
-}
+```bash
+npx rs-version compute
 ```
 
 ---
 
-## 🟡 No Release Detected
+### rs-version compute
 
-### No commits since last release
+Calculates a version based on **semantic commits**.
 
-```json
-{
-  "hasRelease": false,
-  "reason": "no-commits",
-  "baseVersion": "1.4.2",
-  "commitsAnalyzed": 0,
-  "tagPrefix": true
-}
-```
+Example:
 
-### Commits found, but no semantic bump
-
-```json
-{
-  "hasRelease": false,
-  "reason": "no-bump-detected",
-  "baseVersion": "1.4.2",
-  "commitsAnalyzed": 5,
-  "tagPrefix": true
-}
+```bash
+npx rs-version compute
 ```
 
 ---
@@ -158,12 +135,6 @@ This ensures `computeVersion()` can reliably detect semantic intent.
 
 ---
 
-## 🖥 CLI Integration
-
-The CLI wrapper (`rs-compute-version`) is a thin layer on top of `computeVersion()`.
-
----
-
 ## 🚦 CLI Exit Codes (Contract)
 
 | Exit Code | Meaning                       |
@@ -173,13 +144,15 @@ The CLI wrapper (`rs-compute-version`) is a thin layer on top of `computeVersion
 | `2`       | No commits since last release |
 | `1`       | Unexpected error              |
 
-> CI pipelines **must** rely on exit codes, not stdout parsing.
+> CI pipelines **must rely on exit codes**, not stdout parsing.
 
 ---
 
 ## 🚫 Explicit Non-Goals
 
-`computeVersion()` does **not**:
+### computeVersion()
+
+Does **not**:
 
 - Modify `package.json`
 - Create Git tags

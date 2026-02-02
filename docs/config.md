@@ -115,7 +115,7 @@ Invalid values **never throw errors** and **never propagate downstream**.
 
 | Module                   | Uses config                                  |
 | ------------------------ | -------------------------------------------- |
-| `compute-version`        | Exposes `tagPrefix` in JSON output           |
+| `version`                | Exposes `tagPrefix` in JSON output           |
 | `create-tag`             | Applies `tag.prefix` when creating Git tags  |
 | `changelog`              | Renders emojis based on `changelog.emojis`   |
 | `generate-release-notes` | Uses the same tag format                     |

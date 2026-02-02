@@ -7,7 +7,7 @@
     "access": "public"
   },
   "bin": {
-    "rs-compute-version": "bin/compute-version.js",
+    "rs-version": "bin/version.js",
     "rs-changelog": "bin/changelog.js",
     "rs-generate-release-notes": "bin/generate-release-notes.js",
     "rs-dry-run": "bin/dry-run.js",
@@ -18,7 +18,7 @@
     "lint:fix": "eslint bin/ --fix",
     "dry-run": "node bin/dry-run.js create",
     "dry-run:clean": "node bin/dry-run.js remove",
-    "compute-version": "node bin/compute-version.js",
+    "version:compute": "node bin/version.js compute",
     "changelog": "node bin/changelog.js generate",
     "release-notes": "node bin/generate-release-notes.js",
     "create-tag": "node bin/create-tag.js",

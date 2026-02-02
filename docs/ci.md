@@ -73,7 +73,7 @@ jobs:
         id: compute
         run: |
           set +e
-          RESULT=$(npx rs-compute-version)
+          RESULT=$(npx rs-version compute)
           STATUS=$?
           VERSION=$(echo "$RESULT" | jq -r '.nextVersion // empty')
           TAG_PREFIX=$(echo "$RESULT" | jq -r '.tagPrefix // ""')

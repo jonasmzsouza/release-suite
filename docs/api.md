@@ -5,7 +5,7 @@ While the scripts in `bin/*.js` contain only CLI wrappers, the programmatic APIs
 Examples:
 
 ```js
-import { computeVersion } from "release-suite/lib/compute-version.js";
+import { computeVersion } from "release-suite/lib/version/compute.js";
 import { generateChangelog } from "release-suite/lib/changelog/generate.js";
 import { rebuildChangelog } from "release-suite/lib/changelog/rebuild.js";
 import { generateReleaseNotes } from "release-suite/lib/release-notes.js";
@@ -27,7 +27,7 @@ Notes:
 
 ## computeVersion()
 
-> See [`compute-version.md`](compute-version.md).
+> See [`version.md`](version.md).
 
 ## generateChangelog() || rebuildChangelog() ⚠️
 

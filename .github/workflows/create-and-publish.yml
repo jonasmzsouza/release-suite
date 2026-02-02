@@ -68,7 +68,7 @@ jobs:
         id: compute
         run: |
           set +e
-          RESULT=$(node bin/compute-version.js)
+          RESULT=$(node bin/version.js compute)
           STATUS=$?
           VERSION=$(echo "$RESULT" | jq -r '.nextVersion // empty')
           TAG_PREFIX=$(echo "$RESULT" | jq -r '.tagPrefix // ""')

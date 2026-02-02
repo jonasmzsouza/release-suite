@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { fileURLToPath } from "node:url";
-import { computeVersion } from "../lib/compute-version.js";
+import { computeVersion } from "../lib/version/compute.js";
 
 /* ===========================
  * CLI
@@ -37,15 +37,51 @@ import { computeVersion } from "../lib/compute-version.js";
  * @see computeVersion
  */
 function main() {
-  const result = computeVersion();
+  const action = process.argv[2];
 
-  console.log(JSON.stringify(result, null, 2));
+  if (!["compute"].includes(action)) {
+    console.error(
+      JSON.stringify(
+        {
+          error: "invalid-usage",
+          message: "Usage: version.js [compute]",
+        },
+        null,
+        2
+      )
+    );
+    process.exit(1);
+  }
 
-  if (result.hasRelease) process.exit(0);
-  if (result.reason === "no-bump-detected") process.exit(10);
-  if (result.reason === "no-commits") process.exit(2);
+  try {
 
-  process.exit(1);
+    let result = null;
+    if (action === "compute") {
+      result = result = computeVersion();
+    }
+
+    console.log(JSON.stringify(result, null, 2));
+
+    if (action === "compute") {
+      if (result.hasRelease) process.exit(0);
+      if (result.reason === "no-bump-detected") process.exit(10);
+      if (result.reason === "no-commits") process.exit(2);
+    }
+
+    process.exit(1);
+  } catch (err) {
+    console.error(
+      JSON.stringify(
+        {
+          error: "unexpected-error",
+          message: err.message || String(err),
+        },
+        null,
+        2
+      )
+    );
+    process.exit(1);
+  }
 }
 
 const __filename = fileURLToPath(import.meta.url);

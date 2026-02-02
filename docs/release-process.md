@@ -71,7 +71,7 @@ The workflow runs on:
 The release decision is computed by:
 
 ```bash
-node bin/compute-version.js
+node bin/version.js compute
 ```
 
 If no semantic change is detected:

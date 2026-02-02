@@ -28,7 +28,7 @@ Add to your project's `package.json`:
   "scripts": {
     "dry-run": "rs-dry-run create",
     "dry-run:clean": "rs-dry-run remove",
-    "compute-version": "rs-compute-version",
+    "version:compute": "rs-version compute",
     "changelog": "rs-changelog generate",
     "release-notes": "rs-generate-release-notes",
     "create-tag": "rs-create-tag"
@@ -65,7 +65,7 @@ See [`docs/config.md`](docs/config.md) for full documentation.
 
 | Command                     | Description                                                |
 | --------------------------- | ---------------------------------------------------------- |
-| `rs-compute-version`        | Computes next semantic version based on git commits        |
+| `rs-version compute`        | Computes next semantic version based on git commits        |
 | `rs-changelog generate`     | Generates a new changelog entry for the next release       |
 | `rs-changelog rebuild` ⚠️   | Fully rebuilds CHANGELOG.md from git history (Danger Zone) |
 | `rs-generate-release-notes` | Generates RELEASE_NOTES.md                                 |
@@ -167,7 +167,7 @@ are **not available via npm or npx**, since they are not installed as a dependen
 In this case, run the scripts directly with Node.js:
 
 ```bash
-node bin/compute-version.js
+node bin/version.js compute
 node bin/changelog.js generate
 node bin/generate-release-notes.js
 node bin/dry-run.js create
