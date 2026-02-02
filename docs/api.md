@@ -9,7 +9,7 @@ import { computeVersion } from "release-suite/lib/version/compute.js";
 import { generateChangelog } from "release-suite/lib/changelog/generate.js";
 import { rebuildChangelog } from "release-suite/lib/changelog/rebuild.js";
 import { generateReleaseNotes } from "release-suite/lib/release-notes.js";
-import { createTag } from "release-suite/lib/create-tag.js";
+import { createTag } from "release-suite/lib/tag/create.js";
 import { dryRun } from "release-suite/lib/dry-run.js";
 
 const result = computeVersion({ cwd: process.cwd() });
@@ -39,7 +39,7 @@ Notes:
 
 ## createTag()
 
-> See [`create-tag.md`](create-tag.md).
+> See [`tag.md`](tag.md).
 
 ## dryRun()
 

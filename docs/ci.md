@@ -177,7 +177,7 @@ jobs:
         if: steps.validate.outputs.ok == 'true'
         run: |
           set +e
-          RESULT=$(npx rs-create-tag)
+          RESULT=$(npx rs-tag create)
           TAG=$(echo "$RESULT" | jq -r '.tag // empty')
 
           echo "$RESULT"

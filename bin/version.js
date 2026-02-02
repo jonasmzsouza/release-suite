@@ -33,7 +33,6 @@ import { computeVersion } from "../lib/version/compute.js";
  *
  * @function main
  * @returns {void} This function does not return; it exits the process.
- * @see parseFlags
  * @see computeVersion
  */
 function main() {

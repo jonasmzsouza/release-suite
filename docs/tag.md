@@ -1,22 +1,30 @@
-# 📦 createTag
+# 📦 Tag
 
-`createTag()` is responsible for creating and pushing Git tags in a controlled, contract-driven way.
-It supports **computed releases**, **dry-run execution**, and **CI-safe exit signaling**.
+This document defines the **official contract** for tag creation in **Release Suite**.
 
-This document defines its **official, immutable contract**, covering both **Programmatic API (lib)** and **CLI wrapper (bin)**.
+It covers:
+
+- Programmatic APIs
+- CLI commands and exit codes
+- Dry-run behavior
+
+The contract is **stable, deterministic, and CI-safe**.
 
 ---
 
 ## 🧱 Architecture Overview
 
-`create-tag` follows the **two-layer model** used across Release Suite::
+Tag functionality follows the standard **two-layer model** used across Release Suite:
 
-- `lib/` → Programmatic API (pure contract, side effects allowed)
-- `bin/` → CLI (I/O, flags, exit codes)
+- `lib/` → Programmatic API (pure contracts, controlled side effects)
+- `bin/` → CLI wrapper (arguments, stdout, exit codes)
 
-- **lib/** contains the Programmatic API
-- **bin/** contains the CLI wrapper
-- The CLI delegates all logic to the Core API
+Rules:
+
+- All business logic lives in `lib/`
+- CLI is a thin delegation layer
+- JSON output is deterministic
+- Exit codes are the source of truth for CI
 
 ---
 
@@ -62,7 +70,9 @@ If the config file or property is missing, defaults are applied silently.
 
 ## 🧠 Programmatic API
 
-### Signature
+### generateChangelog()
+
+#### Signature
 
 ```ts
 createTag(options?: {
@@ -71,7 +81,7 @@ createTag(options?: {
 }): CreateTagResult
 ```
 
-### Options
+#### Options
 
 | Option   | Description                                                                              |
 | -------- | ---------------------------------------------------------------------------------------- |
@@ -82,7 +92,7 @@ createTag(options?: {
 
 ## 📜 Official Return Contract (Frozen)
 
-### Type Definition
+### CreateTagResult
 
 ```ts
 type CreateTagResult =
@@ -103,83 +113,31 @@ type CreateTagResult =
 
 ---
 
-## 🟢 Tag Created
+## 🖥 CLI
 
-Returned when a tag is successfully created and pushed.
+The CLI exposes a **single binary** with explicit actions.
+
+```bash
+npx rs-tag create [--dry-run]
+```
+
+---
+
+### rs-tag create
+
+Creates a tag based on `package.json`. In dry-run mode, uses `computeVersion()`.
 
 Example:
 
-```json
-{
-  "created": true,
-  "dryRun": false,
-  "tag": "v2.0.0",
-  "tagMessage": "Release v2.0.0"
-}
+```bash
+npx rs-tag create --dry-run
 ```
-
----
-
-## 🟡 No Tag Created
-
-### No version bump detected
-
-```json
-{
-  "created": false,
-  "dryRun": false,
-  "reason": "no-bump"
-}
-```
-
-### Tag already exists
-
-```json
-{
-  "created": false,
-  "dryRun": false,
-  "reason": "already-exists",
-  "tag": "v1.2.3",
-  "tagMessage": "Release v1.2.3"
-}
-```
-
----
-
-## 🧪 Dry-run Mode
 
 Dry-run mode represents a `dry-run intent`, not a separate execution path.
 
 - `dryRun: true` is always reflected in the return object
 - No Git side effects are performed
 - `created` is always `false` in dry-run
-
-Example:
-
-```bash
-node bin/create-tag.js --dry-run
-```
-
-```json
-{
-  "created": false,
-  "dryRun": true,
-  "tag": "v1.4.0",
-  "tagMessage": "Release v1.4.0"
-}
-```
-
----
-
-## 🖥 CLI Integration
-
-The CLI wrapper (`rs-create-tag`) is a thin layer over `createTag()`.
-
-### Flags
-
-| Flag        | Description  |
-| ----------- | ------------ |
-| `--dry-run` | Dry-run mode |
 
 ---
 
@@ -198,7 +156,9 @@ The CLI wrapper (`rs-create-tag`) is a thin layer over `createTag()`.
 
 ## 🚫 Explicit Non-Goals
 
-`createTag()` does **not**:
+### computeVersion()
+
+Does **not**:
 
 - Modify `package.json`
 - Generate changelogs

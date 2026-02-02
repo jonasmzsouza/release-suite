@@ -31,7 +31,7 @@ Add to your project's `package.json`:
     "version:compute": "rs-version compute",
     "changelog": "rs-changelog generate",
     "release-notes": "rs-generate-release-notes",
-    "create-tag": "rs-create-tag"
+    "tag:create": "rs-tag create"
   }
 }
 ```
@@ -70,7 +70,7 @@ See [`docs/config.md`](docs/config.md) for full documentation.
 | `rs-changelog rebuild` ⚠️   | Fully rebuilds CHANGELOG.md from git history (Danger Zone) |
 | `rs-generate-release-notes` | Generates RELEASE_NOTES.md                                 |
 | `rs-dry-run`                | Generates dry-run changelog & release notes                |
-| `rs-create-tag`             | Creates and pushes a git tag                               |
+| `rs-tag create`             | Creates and pushes a git tag                               |
 
 Each command follows a strict and predictable CLI contract (exit codes, stdout, JSON mode).
 
@@ -171,7 +171,7 @@ node bin/version.js compute
 node bin/changelog.js generate
 node bin/generate-release-notes.js
 node bin/dry-run.js create
-node bin/create-tag.js
+node bin/tag.js create
 ```
 
 To test the CLI as a real consumer, you can use:

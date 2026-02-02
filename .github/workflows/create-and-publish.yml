@@ -172,7 +172,7 @@ jobs:
         if: steps.validate.outputs.ok == 'true'
         run: |
           set +e
-          RESULT=$(node bin/create-tag.js)
+          RESULT=$(node bin/tag.js create)
           TAG=$(echo "$RESULT" | jq -r '.tag // empty')
 
           echo "$RESULT"
