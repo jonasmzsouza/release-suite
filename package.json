@@ -8,7 +8,7 @@
   },
   "bin": {
     "rs-compute-version": "bin/compute-version.js",
-    "rs-generate-changelog": "bin/generate-changelog.js",
+    "rs-changelog": "bin/changelog.js",
     "rs-generate-release-notes": "bin/generate-release-notes.js",
     "rs-dry-run": "bin/dry-run.js",
     "rs-create-tag": "bin/create-tag.js"
@@ -19,7 +19,7 @@
     "dry-run": "node bin/dry-run.js create",
     "dry-run:clean": "node bin/dry-run.js remove",
     "compute-version": "node bin/compute-version.js",
-    "changelog": "node bin/generate-changelog.js",
+    "changelog": "node bin/changelog.js generate",
     "release-notes": "node bin/generate-release-notes.js",
     "create-tag": "node bin/create-tag.js",
     "test": "echo \"Error: no test specified\" && exit 1"

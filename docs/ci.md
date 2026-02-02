@@ -104,7 +104,7 @@ jobs:
 
       - name: Generate changelog
         if: steps.compute.outputs.should_publish == 'true'
-        run: npx rs-generate-changelog
+        run: npx rs-changelog generate
 
       # --------------------------------------------------------
       # Stage files (dist is optional)

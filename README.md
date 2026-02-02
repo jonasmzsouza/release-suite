@@ -29,7 +29,7 @@ Add to your project's `package.json`:
     "dry-run": "rs-dry-run create",
     "dry-run:clean": "rs-dry-run remove",
     "compute-version": "rs-compute-version",
-    "changelog": "rs-generate-changelog",
+    "changelog": "rs-changelog generate",
     "release-notes": "rs-generate-release-notes",
     "create-tag": "rs-create-tag"
   }
@@ -53,6 +53,7 @@ npm run dry-run:clear
 Release Suite can be configured using a `release.config.js` file.
 
 This file controls:
+
 - Git tag prefix (`v1.2.3` vs `1.2.3`)
 - Emoji usage in changelog rendering
 
@@ -62,21 +63,25 @@ See [`docs/config.md`](docs/config.md) for full documentation.
 
 ## 🖥️ CLI Commands
 
-| Command                     | Description                                                                                            |
-| --------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `rs-compute-version`        | Computes next semantic version based on git commits                                                    |
-| `rs-generate-changelog`     | Generates `CHANGELOG.md`                                                                               |
-| `rs-generate-release-notes` | Generates `RELEASE_NOTES.md` using the same logic as the **GitHub UI “Generate release notes” button** |
-| `rs-dry-run`                | Generates dry-run changelog & release notes                                                            |
-| `rs-create-tag`             | Create and push a git tag based on `package.json` version                                              |
+| Command                     | Description                                                |
+| --------------------------- | ---------------------------------------------------------- |
+| `rs-compute-version`        | Computes next semantic version based on git commits        |
+| `rs-changelog generate`     | Generates a new changelog entry for the next release       |
+| `rs-changelog rebuild` ⚠️   | Fully rebuilds CHANGELOG.md from git history (Danger Zone) |
+| `rs-generate-release-notes` | Generates RELEASE_NOTES.md                                 |
+| `rs-dry-run`                | Generates dry-run changelog & release notes                |
+| `rs-create-tag`             | Creates and pushes a git tag                               |
 
 Each command follows a strict and predictable CLI contract (exit codes, stdout, JSON mode).
 
 > 💡 **Note about execution**
 >
+> ⚠️ `rs-changelog rebuild` is a destructive operation.
+> Always use `--dry-run` first.
+>
 > - When using these commands via `npm run`, they can be referenced directly (`rs-*`).
 > - In CI/CD environments (e.g. GitHub Actions), always invoke them using `npx`
->   (e.g. `npx rs-generate-changelog`) to ensure proper binary resolution.
+>   (e.g. `npx rs-changelog generate`) to ensure proper binary resolution.
 
 ## 🔁 Release Flow
 
@@ -163,7 +168,7 @@ In this case, run the scripts directly with Node.js:
 
 ```bash
 node bin/compute-version.js
-node bin/generate-changelog.js
+node bin/changelog.js generate
 node bin/generate-release-notes.js
 node bin/dry-run.js create
 node bin/create-tag.js

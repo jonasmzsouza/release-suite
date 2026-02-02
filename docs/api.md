@@ -6,13 +6,15 @@ Examples:
 
 ```js
 import { computeVersion } from "release-suite/lib/compute-version.js";
-import { generateChangelog } from "release-suite/lib/changelog.js";
+import { generateChangelog } from "release-suite/lib/changelog/generate.js";
+import { rebuildChangelog } from "release-suite/lib/changelog/rebuild.js";
 import { generateReleaseNotes } from "release-suite/lib/release-notes.js";
 import { createTag } from "release-suite/lib/create-tag.js";
 import { dryRun } from "release-suite/lib/dry-run.js";
 
 const result = computeVersion({ cwd: process.cwd() });
 await generateChangelog({ cwd: process.cwd(), dryRun: true });
+await rebuildChangelog({ cwd: process.cwd(), dryRun: true });
 await generateReleaseNotes({ cwd: process.cwd(), dryRun: true });
 await createTag({ cwd: process.cwd(), compute: true, dryRun: true });
 await dryRun({ cwd: process.cwd(), action: "create" });
@@ -27,9 +29,9 @@ Notes:
 
 > See [`compute-version.md`](compute-version.md).
 
-## generateChangelog()
+## generateChangelog() || rebuildChangelog() ⚠️
 
-> See [`generate-changelog.md`](generate-changelog.md).
+> See [`changelog.md`](changelog.md).
 
 ## generateReleaseNotes()
 

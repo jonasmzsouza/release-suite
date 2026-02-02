@@ -117,7 +117,7 @@ Invalid values **never throw errors** and **never propagate downstream**.
 | ------------------------ | -------------------------------------------- |
 | `compute-version`        | Exposes `tagPrefix` in JSON output           |
 | `create-tag`             | Applies `tag.prefix` when creating Git tags  |
-| `generate-changelog`     | Renders emojis based on `changelog.emojis`   |
+| `changelog`              | Renders emojis based on `changelog.emojis`   |
 | `generate-release-notes` | Uses the same tag format                     |
 | `dry-run`                | Passes config consistently to all generators |
 

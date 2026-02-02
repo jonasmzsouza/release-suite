@@ -99,7 +99,7 @@ jobs:
 
       - name: Generate changelog
         if: steps.compute.outputs.should_publish == 'true'
-        run: node bin/generate-changelog.js
+        run: node bin/changelog.js generate
 
       # --------------------------------------------------------
       # Stage files (dist is optional)
