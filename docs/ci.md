@@ -228,7 +228,7 @@ jobs:
       # Generate release notes for GitHub Release
       # --------------------------------------------------------
       - name: Generate GitHub Release Notes
-        run: npx rs-generate-release-notes
+        run: npx rs-release-notes generate
 
       # --------------------------------------------------------
       # Create GitHub Release with notes and attach built assets

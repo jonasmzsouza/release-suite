@@ -70,7 +70,7 @@ If the config file or property is missing, defaults are applied silently.
 
 ## 🧠 Programmatic API
 
-### generateChangelog()
+### createTag()
 
 #### Signature
 

@@ -30,7 +30,7 @@ Add to your project's `package.json`:
     "dry-run:clean": "rs-dry-run remove",
     "version:compute": "rs-version compute",
     "changelog": "rs-changelog generate",
-    "release-notes": "rs-generate-release-notes",
+    "release-notes": "rs-release-notes generate",
     "tag:create": "rs-tag create"
   }
 }
@@ -68,7 +68,7 @@ See [`docs/config.md`](docs/config.md) for full documentation.
 | `rs-version compute`        | Computes next semantic version based on git commits        |
 | `rs-changelog generate`     | Generates a new changelog entry for the next release       |
 | `rs-changelog rebuild` ⚠️   | Fully rebuilds CHANGELOG.md from git history (Danger Zone) |
-| `rs-generate-release-notes` | Generates RELEASE_NOTES.md                                 |
+| `rs-release-notes generate` | Generates RELEASE_NOTES.md                                 |
 | `rs-dry-run`                | Generates dry-run changelog & release notes                |
 | `rs-tag create`             | Creates and pushes a git tag                               |
 
@@ -169,7 +169,7 @@ In this case, run the scripts directly with Node.js:
 ```bash
 node bin/version.js compute
 node bin/changelog.js generate
-node bin/generate-release-notes.js
+node bin/release-notes.js generate
 node bin/dry-run.js create
 node bin/tag.js create
 ```

@@ -113,13 +113,13 @@ Invalid values **never throw errors** and **never propagate downstream**.
 
 ## 🔄 How configuration is consumed
 
-| Module                   | Uses config                                  |
-| ------------------------ | -------------------------------------------- |
-| `version`                | Exposes `tagPrefix` in JSON output           |
-| `create-tag`             | Applies `tag.prefix` when creating Git tags  |
-| `changelog`              | Renders emojis based on `changelog.emojis`   |
-| `generate-release-notes` | Uses the same tag format                     |
-| `dry-run`                | Passes config consistently to all generators |
+| Module          | Uses config                                  |
+| --------------- | -------------------------------------------- |
+| `version`       | Exposes `tagPrefix` in JSON output           |
+| `create-tag`    | Applies `tag.prefix` when creating Git tags  |
+| `changelog`     | Renders emojis based on `changelog.emojis`   |
+| `release-notes` | Uses the same tag format                     |
+| `dry-run`       | Passes config consistently to all generators |
 
 ---
 

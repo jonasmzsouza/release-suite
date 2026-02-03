@@ -8,7 +8,7 @@ Examples:
 import { computeVersion } from "release-suite/lib/version/compute.js";
 import { generateChangelog } from "release-suite/lib/changelog/generate.js";
 import { rebuildChangelog } from "release-suite/lib/changelog/rebuild.js";
-import { generateReleaseNotes } from "release-suite/lib/release-notes.js";
+import { generateReleaseNotes } from "release-suite/lib/release-notes/generate.js";
 import { createTag } from "release-suite/lib/tag/create.js";
 import { dryRun } from "release-suite/lib/dry-run.js";
 
@@ -35,7 +35,7 @@ Notes:
 
 ## generateReleaseNotes()
 
-> See [`generate-release-notes.md`](generate-release-notes.md).
+> See [`release-notes.md`](release-notes.md).
 
 ## createTag()
 

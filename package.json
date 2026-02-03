@@ -9,7 +9,7 @@
   "bin": {
     "rs-version": "bin/version.js",
     "rs-changelog": "bin/changelog.js",
-    "rs-generate-release-notes": "bin/generate-release-notes.js",
+    "rs-release-notes": "bin/release-notes.js",
     "rs-dry-run": "bin/dry-run.js",
     "rs-tag": "bin/tag.js"
   },
@@ -20,7 +20,7 @@
     "dry-run:clean": "node bin/dry-run.js remove",
     "version:compute": "node bin/version.js compute",
     "changelog": "node bin/changelog.js generate",
-    "release-notes": "node bin/generate-release-notes.js",
+    "release-notes": "node bin/release-notes.js generate",
     "tag:create": "node bin/tag.js create",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -1,19 +1,30 @@
-# 🧾 generateChangelog
+# 🧾 Release Notes
 
-`generateReleaseNotes()` produces **GitHub-native release notes**, using the same logic as the **GitHub UI “Generate release notes” button**.
+This document defines the **official contract** for changelog generation in **Release Suite**.
 
-This document defines its **official contract**, covering both **Programmatic API (lib)** and **CLI wrapper (bin)**.
+It covers:
+
+- Programmatic APIs
+- CLI commands and exit codes
+- Dry-run behavior
+
+The contract is **stable, deterministic, and CI-safe**.
 
 ---
 
 ## 🧱 Architecture Overview
 
-Release Suite follows a **two-layer model**:
+Release Notes functionality follows the standard **two-layer model** used across Release Suite:
 
-- **Core API:** `lib/release-notes.js`
-- **CLI wrapper:** `bin/generate-release-notes.js`
+- `lib/` → Programmatic API (pure contracts, controlled side effects)
+- `bin/` → CLI wrapper (arguments, stdout, exit codes)
 
-The core API uses **GitHub APIs** (via GH CLI authentication).
+Rules:
+
+- All business logic lives in `lib/`
+- CLI is a thin delegation layer
+- JSON output is deterministic
+- Exit codes are the source of truth for CI
 
 ---
 
@@ -30,6 +41,8 @@ The core API uses **GitHub APIs** (via GH CLI authentication).
 
 ### Signature
 
+#### generateReleaseNotes()
+
 ```ts
 generateReleaseNotes(options?: {
   cwd?: string;
@@ -37,18 +50,33 @@ generateReleaseNotes(options?: {
 }): GenerateReleaseNotesResult
 ```
 
-### Options
+#### Behavior
+
+- Get the version from `package.json`
+- Get the previous release tag
+- Extracts the GitHub repository path (owner/name)
+- Get the default branch name
+- Generate release notes via the GitHub API
+
+#### Output files
+
+| Mode    | File written               |
+| ------- | -------------------------- |
+| normal  | `RELEASE_NOTES.md`         |
+| dry-run | `RELEASE_NOTES.dry-run.md` |
+
+#### Options
 
 | Option   | Description                                                                              |
 | -------- | ---------------------------------------------------------------------------------------- |
 | `cwd`    | Working directory where Git and `package.json` are resolved. Defaults to `process.cwd()` |
-| `dryRun` | If true, generate a local dry-run file and skip calling the GitHub API.                  |
+| `dryRun` | dry-run mode. No git side effects should be executed by the caller                       |
 
 ---
 
 ## 📜 Official Return Contract (Frozen)
 
-### Type Definition
+### GenerateReleaseNotesResult
 
 ```ts
 type GenerateReleaseNotesResult =
@@ -72,15 +100,26 @@ type GenerateReleaseNotesResult =
 
 ---
 
-## 🖥 CLI Integration
+## 🖥 CLI
 
-The CLI wrapper (`rs-generate-release-notes`) is a thin layer on top of `generateReleaseNotes()`.
+The CLI exposes a **single binary** with explicit actions.
 
-### Flags
+```bash
+npx rs-release-notes generate [--dry-run]
+```
 
-| Flag        | Description                      |
-| ----------- | -------------------------------- |
-| `--dry-run` | Write `RELEASE_NOTES.dry-run.md` |
+---
+
+### rs-tag create
+
+Generates a release notes using the official GitHub API, just like GitHub's “Generate release notes” button (UI).
+In dry-run mode, it only uses `computeVersion()`, but does not show details.
+
+Example:
+
+```bash
+npx rs-release-notes generate --dry-run
+```
 
 ---
 
