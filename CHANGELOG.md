@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 The format follows the conventions of [Conventional Commits](https://www.conventionalcommits.org) and semantic versioning (SemVer).
 
+## 3.0.0
+
+### 💥 Breaking Changes
+- Introduce action-based CLI and reorganize release architecture (#21)
+
+### 📚 Documentation
+- Update README.md and ci.md with GitHub CLI usage (#20)
+
+### 🤖 CI
+- Simplify GitHub CLI usage and make authentication explicit (#19)
+- Unify release automation into a single resilient workflow (#18)
+
 ## 2.0.0
 
 ### 💥 Breaking Changes
