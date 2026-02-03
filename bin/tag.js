@@ -26,8 +26,8 @@ function main() {
     console.error(
       JSON.stringify(
         {
-          error: "invalid-usage",
-          message: "Usage: tag.js [create]",
+          "error": "invalid-usage",
+          "message": "Invalid action. Usage: npx rs-tag create"
         },
         null,
         2

@@ -13,8 +13,8 @@ function main() {
     console.error(
       JSON.stringify(
         {
-          error: "invalid-usage",
-          message: "Usage: dry-run.js [create|remove]",
+          "error": "invalid-usage",
+          "message": "Invalid action. Usage: npx rs-dry-run [create|remove]"
         },
         null,
         2

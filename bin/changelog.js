@@ -32,8 +32,8 @@ function main() {
     console.error(
       JSON.stringify(
         {
-          error: "invalid-usage",
-          message: "Usage: changelog.js [generate|rebuild]",
+          "error": "invalid-usage",
+          "message": "Invalid action. Usage: npx rs-changelog [generate|rebuild]"
         },
         null,
         2

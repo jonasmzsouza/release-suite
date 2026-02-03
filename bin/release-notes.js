@@ -31,8 +31,8 @@ function main() {
     console.error(
       JSON.stringify(
         {
-          error: "invalid-usage",
-          message: "Usage: release-notes.js [generate]",
+          "error": "invalid-usage",
+          "message": "Invalid action. Usage: npx rs-release-notes generate"
         },
         null,
         2

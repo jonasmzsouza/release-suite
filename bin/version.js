@@ -42,8 +42,8 @@ function main() {
     console.error(
       JSON.stringify(
         {
-          error: "invalid-usage",
-          message: "Usage: version.js [compute]",
+          "error": "invalid-usage",
+          "message": "Invalid action. Usage: npx rs-version compute"
         },
         null,
         2
