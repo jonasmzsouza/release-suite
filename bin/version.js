@@ -1,29 +1,10 @@
 #!/usr/bin/env node
 import { fileURLToPath } from "node:url";
-import { computeVersion } from "../lib/compute-version.js";
+import { computeVersion } from "../lib/version/compute.js";
 
 /* ===========================
  * CLI
  * =========================== */
-
-/**
- * Parses an array of command-line arguments and returns which known flags are present.
- *
- * Recognized flags:
- *  - "--ci"
- *  - "--json"
- *  - "--preview"
- *
- * @param {string[]} argv - Array of command-line arguments (e.g. process.argv.slice(2)).
- * @returns {{ci: boolean, json: boolean, preview: boolean}} An object with boolean properties indicating presence of each flag.
- */
-function parseFlags(argv) {
-  return {
-    ci: argv.includes("--ci"),
-    json: argv.includes("--json"),
-    preview: argv.includes("--preview"),
-  };
-}
 
 /**
  * Main CLI entrypoint that computes the next release version, prints the result,
@@ -52,28 +33,54 @@ function parseFlags(argv) {
  *
  * @function main
  * @returns {void} This function does not return; it exits the process.
- * @see parseFlags
  * @see computeVersion
  */
 function main() {
-  const flags = parseFlags(process.argv.slice(2));
-  const result = computeVersion();
+  const action = process.argv[2];
 
-  if (flags.json) {
-    console.log(JSON.stringify(result, null, 2));
-  } else if (result.hasRelease) {
-    console.log(result.nextVersion);
-  } else {
+  if (!["compute"].includes(action)) {
     console.error(
-      `No release generated (${result.reason}). Base version: ${result.baseVersion}`
+      JSON.stringify(
+        {
+          "error": "invalid-usage",
+          "message": "Invalid action. Usage: npx rs-version compute"
+        },
+        null,
+        2
+      )
     );
+    process.exit(1);
   }
 
-  if (result.hasRelease) process.exit(0);
-  if (result.reason === "no-bump-detected") process.exit(10);
-  if (result.reason === "no-commits") process.exit(2);
+  try {
 
-  process.exit(1);
+    let result = null;
+    if (action === "compute") {
+      result = result = computeVersion();
+    }
+
+    console.log(JSON.stringify(result, null, 2));
+
+    if (action === "compute") {
+      if (result.hasRelease) process.exit(0);
+      if (result.reason === "no-bump-detected") process.exit(10);
+      if (result.reason === "no-commits") process.exit(2);
+    }
+
+    process.exit(1);
+  } catch (err) {
+    console.error(
+      JSON.stringify(
+        {
+          error: "unexpected-error",
+          message: err.message || String(err),
+        },
+        null,
+        2
+      )
+    );
+    process.exit(1);
+  }
 }
 
 const __filename = fileURLToPath(import.meta.url);

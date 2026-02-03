@@ -9,8 +9,8 @@ Semantic versioning tools for Git-based projects, providing automated version co
 - Automatic version bump based on commit messages
 - Conventional commit parsing (custom prefixes supported)
 - Auto-generated `CHANGELOG.md`
-- Auto-generated `RELEASE_NOTES.md` using GitHub CLI (gh)
-- Local preview mode (`CHANGELOG.preview.md`, `RELEASE_NOTES.preview.md`)
+- Auto-generated `RELEASE_NOTES.md` using GitHub API
+- Local dry-run mode (`CHANGELOG.dry-run.md`, `RELEASE_NOTES.dry-run.md`)
 - CI/CD ready for GitHub Actions
 - No commit rules enforced on the main project
 - Trusted Publishing (OIDC) — no npm tokens required
@@ -26,46 +26,62 @@ Add to your project's `package.json`:
 ```json
 {
   "scripts": {
-    "preview": "rs-preview create",
-    "preview:clean": "rs-preview remove",
-    "compute-version": "rs-compute-version",
-    "compute-version:ci": "rs-compute-version --ci --json",
-    "compute-version:json": "rs-compute-version --json",
-    "changelog": "rs-generate-changelog",
-    "release-notes": "rs-generate-release-notes"
+    "dry-run": "rs-dry-run create",
+    "dry-run:clean": "rs-dry-run remove",
+    "version:compute": "rs-version compute",
+    "changelog": "rs-changelog generate",
+    "release-notes": "rs-release-notes generate",
+    "tag:create": "rs-tag create"
   }
 }
 ```
 
-Generate preview files without touching your real changelog:
+Generate dry-run files without touching your real changelog:
 
 ```bash
-npm run preview
+npm run dry-run
 ```
 
-Remove previews:
+Remove dry-run files:
 
 ```bash
-npm run preview:clear
+npm run dry-run:clear
 ```
+
+## ⚙️ Configuration
+
+Release Suite can be configured using a `release.config.js` file.
+
+This file controls:
+
+- Git tag prefix (`v1.2.3` vs `1.2.3`)
+- Emoji usage in changelog rendering
+
+See [`docs/config.md`](docs/config.md) for full documentation.
+
+---
 
 ## 🖥️ CLI Commands
 
-| Command                     | Description                                               |
-| --------------------------- | --------------------------------------------------------- |
-| `rs-compute-version`        | Computes next semantic version based on git commits       |
-| `rs-generate-changelog`     | Generates `CHANGELOG.md`                                  |
-| `rs-generate-release-notes` | Generates `RELEASE_NOTES.md` using GitHub PRs             |
-| `rs-preview`                | Generates preview changelog & release notes               |
-| `rs-create-tag`             | Create and push a git tag based on `package.json` version |
+| Command                     | Description                                                |
+| --------------------------- | ---------------------------------------------------------- |
+| `rs-version compute`        | Computes next semantic version based on git commits        |
+| `rs-changelog generate`     | Generates a new changelog entry for the next release       |
+| `rs-changelog rebuild` ⚠️   | Fully rebuilds CHANGELOG.md from git history (Danger Zone) |
+| `rs-release-notes generate` | Generates RELEASE_NOTES.md                                 |
+| `rs-dry-run`                | Generates dry-run changelog & release notes                |
+| `rs-tag create`             | Creates and pushes a git tag                               |
 
 Each command follows a strict and predictable CLI contract (exit codes, stdout, JSON mode).
 
 > 💡 **Note about execution**
 >
+> ⚠️ `rs-changelog rebuild` is a destructive operation.
+> Always use `--dry-run` first.
+>
 > - When using these commands via `npm run`, they can be referenced directly (`rs-*`).
 > - In CI/CD environments (e.g. GitHub Actions), always invoke them using `npx`
->   (e.g. `npx rs-generate-changelog`) to ensure proper binary resolution.
+>   (e.g. `npx rs-changelog generate`) to ensure proper binary resolution.
 
 ## 🔁 Release Flow
 
@@ -151,11 +167,11 @@ are **not available via npm or npx**, since they are not installed as a dependen
 In this case, run the scripts directly with Node.js:
 
 ```bash
-node bin/compute-version.js
-node bin/generate-changelog.js
-node bin/generate-release-notes.js
-node bin/preview.js create
-node bin/create-tag.js
+node bin/version.js compute
+node bin/changelog.js generate
+node bin/release-notes.js generate
+node bin/dry-run.js create
+node bin/tag.js create
 ```
 
 To test the CLI as a real consumer, you can use:

@@ -71,7 +71,7 @@ The workflow runs on:
 The release decision is computed by:
 
 ```bash
-node bin/compute-version.js
+node bin/version.js compute
 ```
 
 If no semantic change is detected:
@@ -121,6 +121,28 @@ This is used to:
 - Validate merge correctness
 - Prevent accidental publishes
 - Avoid CI loops (`[skip ci]`)
+
+## ⚠️ Branch Protection & Auto-merge
+
+If the repository requires pull request approvals on `main`,
+the automated Release PR may not be auto-merged using `GITHUB_TOKEN`.
+
+Recommended approaches:
+
+- Do not require reviews for release-only changes
+- Require reviews only for source code paths via CODEOWNERS
+- Approve Release PRs manually when necessary
+
+Advanced setups may use a GitHub App or PAT with caution.
+
+### Required Checks and Auto-merge
+
+Release PRs may be subject to required status checks
+(e.g. GitGuardian security scans).
+
+When auto-merge is enabled, GitHub will automatically
+merge the PR as soon as all required checks succeed,
+regardless of how long they take to complete.
 
 ---
 

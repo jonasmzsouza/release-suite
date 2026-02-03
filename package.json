@@ -7,23 +7,21 @@
     "access": "public"
   },
   "bin": {
-    "rs-compute-version": "bin/compute-version.js",
-    "rs-generate-changelog": "bin/generate-changelog.js",
-    "rs-generate-release-notes": "bin/generate-release-notes.js",
-    "rs-preview": "bin/preview.js",
-    "rs-create-tag": "bin/create-tag.js"
+    "rs-version": "bin/version.js",
+    "rs-changelog": "bin/changelog.js",
+    "rs-release-notes": "bin/release-notes.js",
+    "rs-dry-run": "bin/dry-run.js",
+    "rs-tag": "bin/tag.js"
   },
   "scripts": {
     "lint": "eslint bin/",
     "lint:fix": "eslint bin/ --fix",
-    "preview": "node bin/preview.js create",
-    "preview:clean": "node bin/preview.js remove",
-    "compute-version": "node bin/compute-version.js",
-    "compute-version:ci": "node bin/compute-version.js --ci --json",
-    "compute-version:json": "node bin/compute-version.js --json",
-    "changelog": "node bin/generate-changelog.js",
-    "release-notes": "node bin/generate-release-notes.js",
-    "create-tag": "node bin/create-tag.js",
+    "dry-run": "node bin/dry-run.js create",
+    "dry-run:clean": "node bin/dry-run.js remove",
+    "version:compute": "node bin/version.js compute",
+    "changelog": "node bin/changelog.js generate",
+    "release-notes": "node bin/release-notes.js generate",
+    "tag:create": "node bin/tag.js create",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {

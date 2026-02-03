@@ -49,7 +49,7 @@ export default [
   // LIB (reusable code)
   // =====================
   {
-    files: ["lib/**/*.js"],
+    files: ["lib/**/*.js", "*.config.js"],
     plugins: {
       import: pluginImport,
     },

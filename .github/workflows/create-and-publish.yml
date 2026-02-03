@@ -30,6 +30,7 @@ jobs:
     outputs:
       should_publish: ${{ steps.compute.outputs.should_publish }}
       version: ${{ steps.compute.outputs.version }}
+      tagPrefix: ${{ steps.compute.outputs.tagPrefix }}
       tag: ${{ steps.tag.outputs.tag }}
 
     # Only run when:
@@ -67,9 +68,10 @@ jobs:
         id: compute
         run: |
           set +e
-          RESULT=$(node bin/compute-version.js --ci --json)
+          RESULT=$(node bin/version.js compute)
           STATUS=$?
           VERSION=$(echo "$RESULT" | jq -r '.nextVersion // empty')
+          TAG_PREFIX=$(echo "$RESULT" | jq -r '.tagPrefix // ""')
 
           echo "$RESULT"
 
@@ -78,6 +80,7 @@ jobs:
           else
             echo "should_publish=true" >> $GITHUB_OUTPUT
             echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "tagPrefix=$TAG_PREFIX" >> $GITHUB_OUTPUT 
           fi
 
       # --------------------------------------------------------
@@ -96,7 +99,7 @@ jobs:
 
       - name: Generate changelog
         if: steps.compute.outputs.should_publish == 'true'
-        run: node bin/generate-changelog.js
+        run: node bin/changelog.js generate
 
       # --------------------------------------------------------
       # Stage files (dist is optional)
@@ -117,16 +120,16 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: release/${{ steps.compute.outputs.version }}
-          title: ":bricks: chore(release): ${{ steps.compute.outputs.version }} [skip ci]"
-          commit-message: ":bricks: chore(release): prepare version ${{ steps.compute.outputs.version }} [skip ci]"
+          branch: release/${{ steps.compute.outputs.tagPrefix }}${{ steps.compute.outputs.version }}
+          title: ":bricks: chore(release): ${{ steps.compute.outputs.tagPrefix }}${{ steps.compute.outputs.version }} [skip ci]"
+          commit-message: ":bricks: chore(release): prepare version ${{ steps.compute.outputs.tagPrefix }}${{ steps.compute.outputs.version }} [skip ci]"
           labels: release
           delete-branch: true
           assignees: ${{ github.event.pull_request.merged_by.login }}
           body: |
             Automated release PR.
 
-            - Version bump: ${{ steps.compute.outputs.version }}
+            - Version bump: ${{ steps.compute.outputs.tagPrefix }}${{ steps.compute.outputs.version }}
             - Updated changelog
             - Build artifacts included if present
 
@@ -169,7 +172,7 @@ jobs:
         if: steps.validate.outputs.ok == 'true'
         run: |
           set +e
-          RESULT=$(node bin/create-tag.js)
+          RESULT=$(node bin/tag.js create)
           TAG=$(echo "$RESULT" | jq -r '.tag // empty')
 
           echo "$RESULT"
@@ -220,7 +223,7 @@ jobs:
       # Generate release notes for GitHub Release
       # --------------------------------------------------------
       - name: Generate GitHub Release Notes
-        run: node bin/generate-release-notes.js
+        run: node bin/release-notes.js generate
 
       # --------------------------------------------------------
       # Create GitHub Release with notes and attach built assets
