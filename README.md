@@ -9,7 +9,7 @@ Semantic versioning tools for Git-based projects, providing automated version co
 - Automatic version bump based on commit messages
 - Conventional commit parsing (custom prefixes supported)
 - Auto-generated `CHANGELOG.md`
-- Auto-generated `RELEASE_NOTES.md` using GitHub CLI (gh)
+- Auto-generated `RELEASE_NOTES.md` using GitHub API
 - Local dry-run mode (`CHANGELOG.dry-run.md`, `RELEASE_NOTES.dry-run.md`)
 - CI/CD ready for GitHub Actions
 - No commit rules enforced on the main project

@@ -16,7 +16,7 @@ const result = computeVersion({ cwd: process.cwd() });
 await generateChangelog({ cwd: process.cwd(), dryRun: true });
 await rebuildChangelog({ cwd: process.cwd(), dryRun: true });
 await generateReleaseNotes({ cwd: process.cwd(), dryRun: true });
-await createTag({ cwd: process.cwd(), compute: true, dryRun: true });
+await createTag({ cwd: process.cwd(), dryRun: true });
 await dryRun({ cwd: process.cwd(), action: "create" });
 ```
 
