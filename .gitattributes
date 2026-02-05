@@ -1,0 +1,11 @@
+# Force LF in executable files (CLI)
+bin/* text eol=lf
+
+# JS / ESM code
+*.js   text eol=lf
+*.mjs  text eol=lf
+
+# Configurations
+*.json text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
