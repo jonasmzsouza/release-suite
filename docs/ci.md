@@ -172,18 +172,26 @@ jobs:
       # --------------------------------------------------------
       # Create Git tag (soft)
       # --------------------------------------------------------
+      - name: Configure Git identity (for tags)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Create tag
         id: tag
         if: steps.validate.outputs.ok == 'true'
         run: |
           set +e
           RESULT=$(npx rs-tag create)
+          STATUS=$?
           TAG=$(echo "$RESULT" | jq -r '.tag // empty')
 
           echo "$RESULT"
 
-          if [ -n "$TAG" ]; then
+          if [ "$STATUS" -eq 0 ] && [ -n "$TAG" ]; then
             echo "tag=$TAG" >> $GITHUB_OUTPUT
+          else
+            echo "Tag not created (soft-fail)"
           fi
 
   # ------------------------------------------------------------
