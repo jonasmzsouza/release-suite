@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 The format follows the conventions of [Conventional Commits](https://www.conventionalcommits.org) and semantic versioning (SemVer).
 
+## 3.0.1
+
+### 🐛 Fixes
+- Enforce LF line endings (#24)
+
+### 🤖 CI
+- Add Git identity before creating the tag (#23)
+
 ## 3.0.0
 
 ### 💥 Breaking Changes
