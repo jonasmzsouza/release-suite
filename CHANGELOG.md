@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 The format follows the conventions of [Conventional Commits](https://www.conventionalcommits.org) and semantic versioning (SemVer).
 
+## 3.0.3
+
+### 🐛 Fixes
+- Correct PR merge detection in release workflow (#28)
+
 ## 3.0.2
 
 ### 🐛 Fixes
