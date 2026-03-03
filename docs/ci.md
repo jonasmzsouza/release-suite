@@ -1,5 +1,24 @@
 # CI/CD Examples
 
+## Branch Protection Implications
+
+This workflow supports protected branches.
+
+If auto-merge is enabled, the workflow will wait
+until the Release PR is fully merged before continuing.
+
+If auto-merge is not possible, manual approval is required.
+
+## Skipped Releases
+
+The workflow may skip releases when:
+
+- No semantic changes are detected
+- The PR is labeled as `release`
+- The computed version already exists on npm
+
+In all cases, the workflow exits successfully and safely.
+
 ## `create-and-publish.yml`
 
 ```yml
@@ -27,15 +46,12 @@ jobs:
   # ------------------------------------------------------------
   create:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # Job-level outputs = contract with publish job
     outputs:
-      should_publish: ${{ steps.compute.outputs.should_publish }}
-      version: ${{ steps.compute.outputs.version }}
-      tagPrefix: ${{ steps.compute.outputs.tagPrefix }}
       tag: ${{ steps.tag.outputs.tag }}
 
     # Only run when:
@@ -62,9 +78,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Install release-suite (self)
-        run: npm install .
 
       # --------------------------------------------------------
       # Decide if a release should happen
@@ -154,45 +167,44 @@ jobs:
           fi
 
       # --------------------------------------------------------
-      # Validate merge (soft)
+      # ⏳ WAIT FOR MERGE (CRITICAL)
       # --------------------------------------------------------
-      - name: Validate release commit
-        id: validate
+      - name: Wait for Release PR to be merged
+        if: steps.pr.outputs.pull-request-number != ''
         run: |
-          git fetch origin main --depth=1
+          PR=${{ steps.pr.outputs.pull-request-number }}
+
+          echo "Waiting for PR #$PR to be merged..."
+          for i in {1..60}; do
+            MERGED=$(gh pr view "$PR" --json merged -q .merged)
+            if [ "$MERGED" = "true" ]; then
+              echo "PR merged"
+              exit 0
+            fi
+            sleep 5
+          done
+
+          echo "Timed out waiting for PR merge"
+          exit 1
+
+      # --------------------------------------------------------
+      # Create Git tag
+      # --------------------------------------------------------
+      - name: Create tag
+        id: tag
+        run: |
+          git fetch origin main
           git checkout main
           git reset --hard origin/main
 
-          if git log -1 --pretty=%s | grep -q "^:bricks: chore(release):"; then
-            echo "ok=true" >> $GITHUB_OUTPUT
-          else
-            echo "ok=false" >> $GITHUB_OUTPUT
-          fi
-
-      # --------------------------------------------------------
-      # Create Git tag (soft)
-      # --------------------------------------------------------
-      - name: Configure Git identity (for tags)
-        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Create tag
-        id: tag
-        if: steps.validate.outputs.ok == 'true'
-        run: |
-          set +e
           RESULT=$(npx rs-tag create)
-          STATUS=$?
-          TAG=$(echo "$RESULT" | jq -r '.tag // empty')
+          TAG=$(echo "$RESULT" | jq -r '.tag')
 
           echo "$RESULT"
-
-          if [ "$STATUS" -eq 0 ] && [ -n "$TAG" ]; then
-            echo "tag=$TAG" >> $GITHUB_OUTPUT
-          else
-            echo "Tag not created (soft-fail)"
-          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
   # ------------------------------------------------------------
   # JOB 2 — PUBLISH (only if tag exists)
@@ -223,13 +235,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install release-suite (self)
-        run: npm install .
+      # --------------------------------------------------------
+      # Guard: version already published?
+      # --------------------------------------------------------
+      - name: Guard against duplicate publish
+        id: guard
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "$(node -p "require('./package.json').name")@$VERSION" version >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
 
       # --------------------------------------------------------
       # Publish to npm using Trusted Publishing (OIDC)
       # --------------------------------------------------------
       - name: Publish to npm (Trusted Publishing)
+        if: steps.guard.outputs.exists != 'true'
         run: npm publish
 
       # --------------------------------------------------------
