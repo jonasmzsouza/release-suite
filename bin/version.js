@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { fileURLToPath } from "node:url";
 import { computeVersion } from "../lib/version/compute.js";
 
 /* ===========================
@@ -35,7 +34,7 @@ import { computeVersion } from "../lib/version/compute.js";
  * @returns {void} This function does not return; it exits the process.
  * @see computeVersion
  */
-function main() {
+export function main() {
   const action = process.argv[2];
 
   if (!["compute"].includes(action)) {
@@ -83,7 +82,4 @@ function main() {
   }
 }
 
-const __filename = fileURLToPath(import.meta.url);
-if (process.argv[1] === __filename) {
-  main();
-}
+main();

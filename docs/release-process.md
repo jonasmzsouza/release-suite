@@ -124,25 +124,45 @@ This is used to:
 
 ## ⚠️ Branch Protection & Auto-merge
 
-If the repository requires pull request approvals on `main`,
-the automated Release PR may not be auto-merged using `GITHUB_TOKEN`.
+This workflow is designed to work with protected branches.
 
-Recommended approaches:
+### Required Reviews
 
-- Do not require reviews for release-only changes
-- Require reviews only for source code paths via CODEOWNERS
-- Approve Release PRs manually when necessary
+If `main` requires pull request approvals:
+
+- Release PRs **may not auto-merge** using `GITHUB_TOKEN`
+- Recommended approaches:
+  - Do not require reviews for release-only paths
+  - Use CODEOWNERS to limit review requirements
+  - Manually approve Release PRs when needed
 
 Advanced setups may use a GitHub App or PAT with caution.
 
-### Required Checks and Auto-merge
+### Required Status Checks
 
-Release PRs may be subject to required status checks
-(e.g. GitGuardian security scans).
+Release PRs may be subject to required checks
+(e.g. security scans like GitGuardian).
 
-When auto-merge is enabled, GitHub will automatically
-merge the PR as soon as all required checks succeed,
-regardless of how long they take to complete.
+When auto-merge is enabled, GitHub will merge the PR
+as soon as all required checks succeed, regardless of duration.
+
+The workflow explicitly waits for the merge to complete
+before creating tags or publishing.
+
+---
+
+## ⏭️ Manual Releases (`workflow_dispatch`)
+
+The workflow can be triggered manually using `workflow_dispatch`.
+
+This is useful for:
+
+- Re-running a failed publish
+- Recovering from infrastructure issues
+- Forcing a release after config changes
+
+The same version computation logic applies.
+If no semantic changes are detected, the workflow exits safely.
 
 ---
 

@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-import { fileURLToPath } from "node:url";
 import { dryRun } from "../lib/dry-run.js";
 
 /* ===========================
  * CLI
  * =========================== */
 
-function main() {
+export function main() {
   const action = process.argv[2];
 
   if (!["create", "remove"].includes(action)) {
@@ -48,7 +47,4 @@ function main() {
   }
 }
 
-const __filename = fileURLToPath(import.meta.url);
-if (process.argv[1] === __filename) {
-  main();
-}
+main();

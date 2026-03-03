@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { fileURLToPath } from "node:url";
 import { generateChangelog } from "../lib/changelog/generate.js";
 import { rebuildChangelog } from "../lib/changelog/rebuild.js";
 import { parseFlags } from "../lib/utils.js";
@@ -22,7 +21,7 @@ import { parseFlags } from "../lib/utils.js";
  *  - 11 -> already exists
  *  - 1  -> unexpected error
  */
-function main() {
+export function main() {
   const action = process.argv[2];
   const flags = parseFlags(process.argv.slice(3), {
     dryRun: "--dry-run",
@@ -82,7 +81,4 @@ function main() {
   }
 }
 
-const __filename = fileURLToPath(import.meta.url);
-if (process.argv[1] === __filename) {
-  main();
-}
+main();
