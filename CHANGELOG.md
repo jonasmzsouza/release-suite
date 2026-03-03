@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 The format follows the conventions of [Conventional Commits](https://www.conventionalcommits.org) and semantic versioning (SemVer).
 
+## 3.0.2
+
+### 🐛 Fixes
+- Stabilize CLI execution and release workflow synchronization (#26)
+
 ## 3.0.1
 
 ### 🐛 Fixes
