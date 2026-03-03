@@ -219,9 +219,10 @@ jobs:
     if: needs.create.outputs.tag != ''
 
     steps:
-      - name: Checkout
+      - name: Checkout tag
         uses: actions/checkout@v4
         with:
+          ref: ${{ needs.create.outputs.tag }}
           fetch-depth: 0
           persist-credentials: true
 
@@ -234,6 +235,19 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # --------------------------------------------------------
+      # Assert tag matches package.json
+      # --------------------------------------------------------
+      - name: Assert tag matches package.json
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG=${{ needs.create.outputs.tag }}
+
+          if [ "$VERSION" != "$TAG" ]; then
+            echo "Version mismatch!"
+            exit 1
+          fi
 
       # --------------------------------------------------------
       # Guard: version already published?
