@@ -176,9 +176,9 @@ jobs:
 
           echo "Waiting for PR #$PR to be merged..."
           for i in {1..60}; do
-            MERGED=$(gh pr view "$PR" --json merged -q .merged)
-            if [ "$MERGED" = "true" ]; then
-              echo "PR merged"
+            MERGED_AT=$(gh pr view "$PR" --json mergedAt -q .mergedAt)
+            if [ "$MERGED_AT" != "null" ] && [ -n "$MERGED_AT" ]; then
+              echo "PR merged at $MERGED_AT"
               exit 0
             fi
             sleep 5
