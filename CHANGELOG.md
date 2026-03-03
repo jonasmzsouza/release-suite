@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 The format follows the conventions of [Conventional Commits](https://www.conventionalcommits.org) and semantic versioning (SemVer).
 
+## 3.0.4
+
+### 🐛 Fixes
+- Ensure correct tag checkout and stabilize release notes generation in Job 2 (#30)
+
 ## 3.0.3
 
 ### 🐛 Fixes
