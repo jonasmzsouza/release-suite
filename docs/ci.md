@@ -42,7 +42,7 @@ concurrency:
 
 jobs:
   # ------------------------------------------------------------
-  # JOB 1 — CREATE RELEASE PR + TAG DECISION
+  # JOB 1 — CREATE RELEASE PR + MERGE + TAG
   # ------------------------------------------------------------
   create:
     runs-on: ubuntu-latest
@@ -192,6 +192,7 @@ jobs:
       # --------------------------------------------------------
       - name: Create tag
         id: tag
+        if: steps.pr.outputs.pull-request-number != ''
         run: |
           git fetch origin main
           git checkout main

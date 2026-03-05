@@ -45,7 +45,7 @@ npm run dry-run
 Remove dry-run files:
 
 ```bash
-npm run dry-run:clear
+npm run dry-run:clean
 ```
 
 ## ⚙️ Configuration
@@ -69,7 +69,8 @@ See [`docs/config.md`](docs/config.md) for full documentation.
 | `rs-changelog generate`     | Generates a new changelog entry for the next release       |
 | `rs-changelog rebuild` ⚠️   | Fully rebuilds CHANGELOG.md from git history (Danger Zone) |
 | `rs-release-notes generate` | Generates RELEASE_NOTES.md                                 |
-| `rs-dry-run`                | Generates dry-run changelog & release notes                |
+| `rs-dry-run create`         | Generates dry-run changelog & release notes                |
+| `rs-dry-run remove`         | Removes dry-run changelog & release notes                  |
 | `rs-tag create`             | Creates and pushes a git tag                               |
 
 Each command follows a strict and predictable CLI contract (exit codes, stdout, JSON mode).

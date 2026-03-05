@@ -171,6 +171,7 @@ jobs:
       # --------------------------------------------------------
       - name: Create tag
         id: tag
+        if: steps.pr.outputs.pull-request-number != ''
         run: |
           git fetch origin main
           git checkout main
