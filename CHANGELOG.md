@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 The format follows the conventions of [Conventional Commits](https://www.conventionalcommits.org) and semantic versioning (SemVer).
 
+## 3.0.5
+
+### 🐛 Fixes
+- Add conditional in the create tag step in the workflow (#32)
+
 ## 3.0.4
 
 ### 🐛 Fixes
