@@ -7,4 +7,11 @@ export default {
   changelog: {
     emojis: true,
   },
+
+  releaseRules: {
+    docs: "patch",
+    ci: "patch",
+    refactor: "patch",
+    perf: "patch",
+  }
 };
