@@ -56,6 +56,7 @@ This file controls:
 
 - Git tag prefix (`v1.2.3` vs `1.2.3`)
 - Emoji usage in changelog rendering
+- Commit-to-version mapping (via `releaseRules`)
 
 See [`docs/config.md`](docs/config.md) for full documentation.
 
