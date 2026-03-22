@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 The format follows the conventions of [Conventional Commits](https://www.conventionalcommits.org) and semantic versioning (SemVer).
 
+## 3.1.0
+
+### ✨ Features
+- Introduce configurable releaseRules with safe defaults and validation (#34)
+
 ## 3.0.5
 
 ### 🐛 Fixes
