@@ -20,18 +20,19 @@ import { parseFlags } from "../lib/utils.js";
  *  - 2  -> missing gh / repo
  *  - 1  -> unexpected error
  */
-export function main() {
+export async function main() {
   const action = process.argv[2];
+
   const flags = parseFlags(process.argv.slice(3), {
-    dryRun: "--dry-run",
+    dryRun: "--dry-run"
   });
 
   if (!["generate"].includes(action)) {
     console.error(
       JSON.stringify(
         {
-          "error": "invalid-usage",
-          "message": "Invalid action. Usage: npx rs-release-notes generate"
+          error: "invalid-usage",
+          message: "Invalid action. Usage: npx rs-release-notes generate"
         },
         null,
         2
@@ -40,36 +41,32 @@ export function main() {
     process.exit(1);
   }
 
-  try {
+  let result = null;
 
-    let result = null;
-    if (action === "generate") {
-      result = generateReleaseNotes({ dryRun: flags.dryRun });
-    }
-
-    console.log(JSON.stringify(result, null, 2));
-
-    if (action === "generate") {
-      if (result.generated) process.exit(0);
-      if (result.reason === "no-release") process.exit(10);
-      if (result.reason === "already-exists") process.exit(11);
-      if (result.reason === "no-repo") process.exit(2);
-    }
-
-    process.exit(1);
-  } catch (err) {
-    console.error(
-      JSON.stringify(
-        {
-          error: "unexpected-error",
-          message: err.message || String(err),
-        },
-        null,
-        2
-      )
-    );
-    process.exit(1);
+  if (action === "generate") {
+    result = await generateReleaseNotes({ dryRun: flags.dryRun });
   }
+
+  console.log(JSON.stringify(result, null, 2));
+
+  if (result.generated) process.exit(0);
+  if (result.reason === "no-release") process.exit(10);
+  if (result.reason === "already-exists") process.exit(11);
+  if (result.reason === "no-repo") process.exit(2);
+
+  process.exit(1);
 }
 
-main();
+main().catch((err) => {
+  console.error(
+    JSON.stringify(
+      {
+        error: "unexpected-error",
+        message: err?.message || String(err)
+      },
+      null,
+      2
+    )
+  );
+  process.exit(1);
+});

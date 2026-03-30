@@ -23,11 +23,15 @@ Changelog functionality follows the standard **two-layer model** used across Rel
 ### Internal Pipeline
 
 ```txt
-git commits
+git log
    ↓
 parseCommit
    ↓
-normalizeCommits (enrichment: PR / Issues + links)
+normalizeCommits
+   ↓
+createReferenceClassifier
+   ↓
+classifyReferences  ← dedupe + priority
    ↓
 categorizeCommits
    ↓
@@ -52,8 +56,7 @@ The changelog system exists to answer two distinct questions:
 
 These concerns are intentionally separated.
 
-  See [`docs/config.md`](config.md) for changelog customization options such as emoji rendering, tag prefixes, and release rule behavior.
-
+See [`docs/config.md`](config.md) for changelog customization options such as emoji rendering, tag prefixes, and release rule behavior.
 
 - PR references (`#123`)
 - Issue references (`#456`)

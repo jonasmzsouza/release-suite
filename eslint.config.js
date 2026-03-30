@@ -13,14 +13,14 @@ export default [
   {
     files: ["bin/**/*.js"],
     plugins: {
-      import: pluginImport,
+      import: pluginImport
     },
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
       globals: {
-        ...globals.node,
-      },
+        ...globals.node
+      }
     },
     rules: {
       "no-console": "off",
@@ -31,18 +31,11 @@ export default [
       "import/order": [
         "warn",
         {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            "parent",
-            "sibling",
-            "index",
-          ],
-          alphabetize: { order: "asc", caseInsensitive: true },
-        },
-      ],
-    },
+          groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
+          alphabetize: { order: "asc", caseInsensitive: true }
+        }
+      ]
+    }
   },
 
   // =====================
@@ -51,14 +44,14 @@ export default [
   {
     files: ["lib/**/*.js", "*.config.js"],
     plugins: {
-      import: pluginImport,
+      import: pluginImport
     },
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
       globals: {
-        ...globals.node,
-      },
+        ...globals.node
+      }
     },
     rules: {
       "no-console": "warn",
@@ -69,21 +62,14 @@ export default [
       "import/order": [
         "warn",
         {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            "parent",
-            "sibling",
-            "index",
-          ],
-          alphabetize: { order: "asc", caseInsensitive: true },
-        },
-      ],
-    },
+          groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
+          alphabetize: { order: "asc", caseInsensitive: true }
+        }
+      ]
+    }
   },
   prettierConfig,
   {
-    ignores: ["dist/**/*.js"],
-  },
+    ignores: ["dist/**/*.js"]
+  }
 ];

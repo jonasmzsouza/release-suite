@@ -16,6 +16,7 @@
   "scripts": {
     "lint": "eslint bin/",
     "lint:fix": "eslint bin/ --fix",
+    "format": "prettier . --write",
     "dry-run": "node bin/dry-run.js create",
     "dry-run:clean": "node bin/dry-run.js remove",
     "version:compute": "node bin/version.js compute",
@@ -55,6 +56,7 @@
     "eslint": "9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
-    "globals": "^16.5.0"
+    "globals": "^16.5.0",
+    "prettier": "^3.8.1"
   }
 }

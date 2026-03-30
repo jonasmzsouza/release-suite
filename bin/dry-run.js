@@ -12,8 +12,8 @@ export function main() {
     console.error(
       JSON.stringify(
         {
-          "error": "invalid-usage",
-          "message": "Invalid action. Usage: npx rs-dry-run [create|remove]"
+          error: "invalid-usage",
+          message: "Invalid action. Usage: npx rs-dry-run [create|remove]"
         },
         null,
         2
@@ -22,29 +22,27 @@ export function main() {
     process.exit(1);
   }
 
-  try {
-    const result = dryRun({ action });
+  const result = dryRun({ action });
 
-    console.log(JSON.stringify(result, null, 2));
+  console.log(JSON.stringify(result, null, 2));
 
-    if (action === "create" && result.generated === false) {
-      process.exit(10);
-    }
-
-    process.exit(0);
-  } catch (err) {
-    console.error(
-      JSON.stringify(
-        {
-          error: "unexpected-error",
-          message: err.message || String(err),
-        },
-        null,
-        2
-      )
-    );
-    process.exit(1);
+  if (action === "create" && result.generated === false) {
+    process.exit(10);
   }
+
+  process.exit(0);
 }
 
-main();
+main().catch((err) => {
+  console.error(
+    JSON.stringify(
+      {
+        error: "unexpected-error",
+        message: err?.message || String(err)
+      },
+      null,
+      2
+    )
+  );
+  process.exit(1);
+});

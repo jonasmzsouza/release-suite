@@ -144,7 +144,6 @@ Common `reason` values returned by providers include:
 - `not-supported` — provider does not support release-notes generation
 - `exception` — an unexpected exception occurred
 
-
 ### GitHub
 
 - Uses GitHub Release Notes API

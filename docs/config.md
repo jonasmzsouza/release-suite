@@ -53,11 +53,11 @@ export default {
 
 Controls the prefix used in Git tags and release identifiers.
 
-| Value   | Behavior                         |
-| ------- | -------------------------------- |
-| `"v"`   | Tags are generated as `v1.2.3`   |
-| `""`    | Tags are generated as `1.2.3`    |
-| custom  | Tags are generated as `x1.2.3`   |
+| Value  | Behavior                       |
+| ------ | ------------------------------ |
+| `"v"`  | Tags are generated as `v1.2.3` |
+| `""`   | Tags are generated as `1.2.3`  |
+| custom | Tags are generated as `x1.2.3` |
 
 **Default:**
 
@@ -117,12 +117,12 @@ releaseRules: {
 }
 ```
 
-| Value   | Meaning                    |
-| ------- | -------------------------- |
-| major   | Breaking change            |
-| minor   | New feature                |
-| patch   | Fix or non-breaking change |
-| none    | Ignored for versioning     |
+| Value | Meaning                    |
+| ----- | -------------------------- |
+| major | Breaking change            |
+| minor | New feature                |
+| patch | Fix or non-breaking change |
+| none  | Ignored for versioning     |
 
 **Default:**
 
