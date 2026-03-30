@@ -7,97 +7,97 @@ The format follows the conventions of [Conventional Commits](https://www.convent
 
 ### ✨ Features
 
-- Multi-provider release notes architecture + PR/Issue-linked changelog (#36) ([#36](https://github.com/jonasmzsouza/release-suite/issues/36))
+- Multi-provider release notes architecture + PR/Issue-linked changelog ([#36](https://github.com/jonasmzsouza/release-suite/pull/36))
 
 ## 3.1.0
 
 ### ✨ Features
 
-- Introduce configurable releaseRules with safe defaults and validation (#34)
+- Introduce configurable releaseRules with safe defaults and validation ([#34](https://github.com/jonasmzsouza/release-suite/pull/34))
 
 ## 3.0.5
 
 ### 🐛 Fixes
 
-- Add conditional in the create tag step in the workflow (#32)
+- Add conditional in the create tag step in the workflow ([#32](https://github.com/jonasmzsouza/release-suite/pull/32))
 
 ## 3.0.4
 
 ### 🐛 Fixes
 
-- Ensure correct tag checkout and stabilize release notes generation in Job 2 (#30)
+- Ensure correct tag checkout and stabilize release notes generation in Job 2 ([#30](https://github.com/jonasmzsouza/release-suite/pull/30))
 
 ## 3.0.3
 
 ### 🐛 Fixes
 
-- Correct PR merge detection in release workflow (#28)
+- Correct PR merge detection in release workflow ([#28](https://github.com/jonasmzsouza/release-suite/pull/28))
 
 ## 3.0.2
 
 ### 🐛 Fixes
 
-- Stabilize CLI execution and release workflow synchronization (#26)
+- Stabilize CLI execution and release workflow synchronization ([#26](https://github.com/jonasmzsouza/release-suite/pull/26))
 
 ## 3.0.1
 
 ### 🐛 Fixes
 
-- Enforce LF line endings (#24)
+- Enforce LF line endings ([#24](https://github.com/jonasmzsouza/release-suite/pull/24))
 
 ### 🤖 CI
 
-- Add Git identity before creating the tag (#23)
+- Add Git identity before creating the tag ([#23](https://github.com/jonasmzsouza/release-suite/pull/23))
 
 ## 3.0.0
 
 ### 💥 Breaking Changes
 
-- Introduce action-based CLI and reorganize release architecture (#21)
+- Introduce action-based CLI and reorganize release architecture ([#21](https://github.com/jonasmzsouza/release-suite/pull/21))
 
 ### 📚 Documentation
 
-- Update README.md and ci.md with GitHub CLI usage (#20)
+- Update README.md and ci.md with GitHub CLI usage ([#20](https://github.com/jonasmzsouza/release-suite/pull/20))
 
 ### 🤖 CI
 
-- Simplify GitHub CLI usage and make authentication explicit (#19)
-- Unify release automation into a single resilient workflow (#18)
+- Simplify GitHub CLI usage and make authentication explicit ([#19](https://github.com/jonasmzsouza/release-suite/pull/19))
+- Unify release automation into a single resilient workflow ([#18](https://github.com/jonasmzsouza/release-suite/pull/18))
 
 ## 2.0.0
 
 ### 💥 Breaking Changes
 
-- Consolidate semantic contracts across CLI, APIs, and docs (#16)
+- Consolidate semantic contracts across CLI, APIs, and docs ([#16](https://github.com/jonasmzsouza/release-suite/pull/16))
 
 ### 🤖 CI
 
-- Harden workflow triggers and merge conditions (#15)
+- Harden workflow triggers and merge conditions ([#15](https://github.com/jonasmzsouza/release-suite/pull/15))
 
 ## 1.0.1
 
 ### 🐛 Fixes
 
-- Harden changelog generation for squash commits (#13)
+- Harden changelog generation for squash commits ([#13](https://github.com/jonasmzsouza/release-suite/pull/13))
 
 ### 🤖 CI
 
-- Harden workflow triggers and merge conditions (#12)
+- Harden workflow triggers and merge conditions ([#12](https://github.com/jonasmzsouza/release-suite/pull/12))
 
 ## 1.0.0
 
 ### 💥 Breaking Changes
 
-- Harden computeVersion contract and CLI behavior (#4)
+- Harden computeVersion contract and CLI behavior ([#4](https://github.com/jonasmzsouza/release-suite/pull/4))
 
 ### 🐛 Fixes
 
-- Normalize path resolution for all CLI scripts (#2)
+- Normalize path resolution for all CLI scripts ([#2](https://github.com/jonasmzsouza/release-suite/pull/2))
 
 ### 🤖 CI
 
-- Harden local script execution and dist resolution (#10)
-- Binary resolution (#3)
+- Harden local script execution and dist resolution ([#10](https://github.com/jonasmzsouza/release-suite/pull/10))
+- Binary resolution ([#3](https://github.com/jonasmzsouza/release-suite/pull/3))
 
 ## 0.1.0
 
