@@ -1,6 +1,6 @@
 # API Documentation
 
-While the scripts in `bin/*.js` contain only CLI wrappers, the programmatic APIs are exposed in the scripts in `lib/*.js`. This way you can call the core logic directly from Node without generating child processes. This is useful for integration tests, tools, or when you need to orchestrate the actions of another script.
+While the scripts in `bin/*.js` contain only CLI wrappers, the programmatic APIs are exposed in the scripts in `lib/*.js`. The `bin` files are thin wrappers around the public `lib` implementations, so importing from `lib` is the preferred approach for programmatic usage. This is useful for integration tests, tools, or when you need to orchestrate the actions of another script.
 
 Examples:
 

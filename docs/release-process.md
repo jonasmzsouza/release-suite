@@ -6,182 +6,212 @@ The goal is to ensure:
 
 - Clean `main` history
 - Predictable semantic versioning
-- Secure publishing (no secrets)
-- Fully automated, auditable releases
+- Secure publishing
+- Fully automated and auditable releases
+- Provider-agnostic release logic
+
+This document explains the **release model and philosophy**, independent of CI providers.
+
+Provider-specific CI implementations are documented separately.
 
 ---
 
-## 🔁 High-level Flow
+# 🔁 High-level Flow
 
-1. A **Feature / Fix PR** is merged into main
-2. The workflow evaluates whether a release is needed
-3. If yes, a **Release PR** is automatically created
-4. The Release PR is auto-merged
+1. A **Feature / Fix PR** is merged into `main`
+2. CI evaluates whether a release is required
+3. If needed, a **Release PR** is automatically created
+4. The Release PR is merged
 5. A Git tag is created
 6. The package is published
-7. A GitHub Release is generated
+7. Release notes are generated
+
+This flow guarantees that **all releases are reproducible and traceable**.
 
 ---
 
-## 🧱 Why a Release PR exists
+# 🧱 Why a Release PR Exists
 
-The Release PR is intentional and critical.
+The Release PR is a deliberate design decision.
 
-It allows:
+It provides:
 
-- A clean, squash-based history on `main`
-- Explicit visibility of release changes
-- Separation between **product changes** and **release artifacts**
-- Safe automation on protected branches
+- Clean history on `main`
+- Explicit visibility of release artifacts
+- Separation between **product changes** and **release mechanics**
+- Compatibility with protected branches
+- Safe automation
 
-No direct commits are ever pushed to `main`.
+No automation ever pushes directly to `main`.
+
+All changes must go through a pull request.
 
 ---
 
-## 🔀 Types of Pull Requests
+# 🔀 Types of Pull Requests
 
-**Feature / Fix PR**
+## Feature / Fix PR
 
-- Authored by humans
-- Contains application logic
+Created by developers.
+
+Contains:
+
+- Product changes
+- Bug fixes
+- Refactors
+- Documentation updates
+
+Characteristics:
+
 - Reviewed manually
 - Merged into `main`
 - May or may not trigger a release
 
-**Release PR (release/x.y.z)**
-
-- Created by automation
-- Contains only:
-  - `package.json` version bump
-  - `package-lock.json`
-  - `CHANGELOG.md`
-  - `dist/` (if applicable)
-- Uses a fixed commit convention
-- Is auto-merged
-
 ---
 
-## 🧠 Release Decision Logic
+## Release PR (`release/x.y.z`)
 
-The workflow runs on:
+Created automatically by CI.
 
-- `pull_request.closed` (merged into `main`)
-- workflow_dispatch
+Contains only release artifacts:
 
-The release decision is computed by:
+- `package.json` version bump
+- `package-lock.json`
+- `CHANGELOG.md`
+- `dist/` (if applicable)
 
-```bash
-node bin/version.js compute
+Release PRs follow a strict commit convention.
+
+Example:
+
+```
+:bricks: chore(release): 3.1.0
 ```
 
-If no semantic change is detected:
+---
 
-- No Release PR is created
-- The workflow exits successfully
+# 🧠 Release Decision Logic
 
-This allows documentation, CI or refactor PRs to merge without producing releases.
+The release decision is computed automatically.
+
+Example command:
+
+```
+npx rs-version compute
+```
+
+The command analyzes commit history and determines whether a release is required.
+
+Possible outcomes:
+
+| Result              | Behavior                    |
+| ------------------- | --------------------------- |
+| No semantic changes | Workflow exits successfully |
+| Patch change        | Patch release               |
+| Feature             | Minor release               |
+| Breaking change     | Major release               |
 
 ---
 
-## 🔐 Security Model
+# 🏷️ Git Tags
 
-**npm Publishing**
+Tags are created **after the Release PR is merged**.
 
-- Uses **Trusted Publishing (OIDC)**
-- No npm tokens are stored
-- The GitHub Actions runner is authenticated at runtime
-- npm provenance is automatically generated
+Rules:
 
-**GitHub Access**
-
-- Uses **GITHUB_TOKEN**
-- Scoped permissions
-- No Personal Access Tokens required
-
----
-
-## 🏷️ Git Tags
-
-- Tags are created **after** the Release PR is merged
 - Tags are immutable
-- Tags always match the published version
+- Tags match the published version
+- Tags are the source of truth for releases
+
+Example:
+
+```
+v3.1.0
+```
 
 ---
 
-## 📝 Commit Convention
+# 📝 Commit Convention
 
 Release commits follow a strict format:
 
-```bash
+```
 :bricks: chore(release): x.y.z
 ```
 
 This is used to:
 
-- Validate merge correctness
-- Prevent accidental publishes
-- Avoid CI loops (`[skip ci]`)
-
-## ⚠️ Branch Protection & Auto-merge
-
-This workflow is designed to work with protected branches.
-
-### Required Reviews
-
-If `main` requires pull request approvals:
-
-- Release PRs **may not auto-merge** using `GITHUB_TOKEN`
-- Recommended approaches:
-  - Do not require reviews for release-only paths
-  - Use CODEOWNERS to limit review requirements
-  - Manually approve Release PRs when needed
-
-Advanced setups may use a GitHub App or PAT with caution.
-
-### Required Status Checks
-
-Release PRs may be subject to required checks
-(e.g. security scans like GitGuardian).
-
-When auto-merge is enabled, GitHub will merge the PR
-as soon as all required checks succeed, regardless of duration.
-
-The workflow explicitly waits for the merge to complete
-before creating tags or publishing.
+- Detect valid release commits
+- Avoid accidental publishes
+- Prevent CI loops (`[skip ci]`)
 
 ---
 
-## ⏭️ Manual Releases (`workflow_dispatch`)
+# 🔐 Security Model
 
-The workflow can be triggered manually using `workflow_dispatch`.
+The release system avoids long-lived credentials whenever possible.
 
-This is useful for:
+## Package Publishing
+
+Preferred method:
+
+**Trusted Publishing (OIDC)**
+
+Benefits:
+
+- No npm tokens stored
+- Temporary credentials
+- Provenance metadata automatically generated
+
+---
+
+## Repository Access
+
+CI platforms authenticate using their native tokens:
+
+Examples:
+
+- GitHub → `GITHUB_TOKEN`
+- GitLab → `CI_JOB_TOKEN` / `GITLAB_TOKEN`
+- Bitbucket → App Password / SSH key
+
+---
+
+# ⚠️ Branch Protection
+
+This workflow is designed for **protected branches**.
+
+Recommended settings:
+
+- Require pull requests
+- Disallow direct pushes
+- Require status checks
+- Allow CI automation
+
+---
+
+# ⏭️ Manual Releases
+
+Releases may also be triggered manually.
+
+Typical reasons:
 
 - Re-running a failed publish
-- Recovering from infrastructure issues
-- Forcing a release after config changes
+- Infrastructure recovery
+- Configuration updates
 
-The same version computation logic applies.
-If no semantic changes are detected, the workflow exits safely.
+The same release logic still applies.
 
----
-
-## ⚙️ Repository Configuration
-
-### Branch Protection (`main`)
-
-- Require pull request before merging
-- Allow auto-merge
-- Allow GitHub Actions to bypass PR requirements
-
-### GitHub Actions
-
-- Workflow permissions: Read & Write
-- Allow Actions to create and approve PRs
-
-### npm
-
-- Trusted Publishing enabled
-- No `NPM_TOKEN` is used
+If no semantic change is detected, the workflow exits safely.
 
 ---
+
+# ⚙️ CI Implementations
+
+Provider-specific CI implementations are documented here:
+
+- [GitHub Actions](providers/github.md)
+- [GitLab CI](providers/gitlab.md)
+- [Bitbucket Pipelines](providers/bitbucket.md)
+
+Each provider requires slightly different repository configuration and CI setup.

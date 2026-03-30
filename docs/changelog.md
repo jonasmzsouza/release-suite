@@ -20,6 +20,20 @@ Changelog functionality follows the standard **two-layer model** used across Rel
 - `lib/` → Programmatic API (pure contracts, controlled side effects)
 - `bin/` → CLI wrapper (arguments, stdout, exit codes)
 
+### Internal Pipeline
+
+```txt
+git commits
+   ↓
+parseCommit
+   ↓
+normalizeCommits (enrichment: PR / Issues + links)
+   ↓
+categorizeCommits
+   ↓
+renderChangelog
+```
+
 Rules:
 
 - All business logic lives in `lib/`
@@ -38,14 +52,25 @@ The changelog system exists to answer two distinct questions:
 
 These concerns are intentionally separated.
 
+  See [`docs/config.md`](config.md) for changelog customization options such as emoji rendering, tag prefixes, and release rule behavior.
 
-### Release commits
 
-- All semantic decisions about commits should be made on the normalized subject
-- Squash commits are rendered as a single changelog entry.
-- Commits whose sole purpose is to create or publish a release (e.g.
-chore(release): 2.0.0) are intentionally excluded from the changelog.
-- The changelog describes what changed, not that a release happened.
+- PR references (`#123`)
+- Issue references (`#456`)
+- Multi-reference support
+- Provider-aware links
+
+Example:
+
+```md
+- feat: add login ([#34](...), [#12](...))
+```
+
+Supported providers:
+
+- GitHub
+- GitLab
+- Bitbucket
 
 ---
 
@@ -68,6 +93,7 @@ generateChangelog(options?: {
 
 - Delegates release decision to `computeVersion({ cwd })`
 - Analyzes commits since the last Git tag
+- Enriches commits with references and links
 - Categorizes commits using semantic rules
 - Inserts a new release section at the top of the changelog
 - Preserves existing content and formatting
@@ -98,17 +124,11 @@ rebuildChangelog(options?: {
 
 #### Behavior
 
-- Reads **all Git tags**, sorted by version
-- Reads **all commits per tag range**
-- Filters invalid or non-semantic commits
-- Recreates **all release sections**
-- Eliminates:
-  - empty sections
-  - legacy garbage
-  - commits without subjects
-- Preserves only:
-  - `# Changelog` title
-  - introductory paragraphs below the title
+- Reads all Git tags
+- Reconstructs releases from commit history
+- Applies normalization + enrichment
+- Removes invalid or empty content
+- Preserves only header and intro
 
 #### Output files
 
@@ -229,11 +249,10 @@ This command:
 
 ## 🔒 Safety Guarantees
 
-- `rebuildChangelog` is **never executed implicitly**
-- Dry-run must be explicitly requested
-- No Git tags are created
-- No versions are mutated
-- No releases are published
+- No implicit destructive actions
+- Rebuild is always explicit
+- No Git mutations
+- CI-safe behavior
 
 ---
 
@@ -257,10 +276,10 @@ This command:
 
 ## ✅ Summary
 
-- Deterministic
 - Git-first
+- Provider-aware
+- Deterministic
 - CI-safe
-- Explicitly destructive when rebuilding
-- No hidden side effects
+- Extensible
 
-The changelog system does exactly two things — and does them predictably.
+Changelog generation is predictable, enriched, and platform-agnostic.

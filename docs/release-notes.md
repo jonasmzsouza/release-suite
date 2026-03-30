@@ -1,14 +1,8 @@
 # 🧾 Release Notes
 
-This document defines the **official contract** for changelog generation in **Release Suite**.
+This document defines how **Release Suite** generates release notes across different Git providers.
 
-It covers:
-
-- Programmatic APIs
-- CLI commands and exit codes
-- Dry-run behavior
-
-The contract is **stable, deterministic, and CI-safe**.
+The system is **provider-aware**, **resilient**, and **fallback-safe**.
 
 ---
 
@@ -18,6 +12,20 @@ Release Notes functionality follows the standard **two-layer model** used across
 
 - `lib/` → Programmatic API (pure contracts, controlled side effects)
 - `bin/` → CLI wrapper (arguments, stdout, exit codes)
+
+### Internal Pipeline
+
+Release notes follow a **provider-based architecture**:
+
+```txt
+generateReleaseNotes (core)
+   ↓
+provider adapter (GitHub / GitLab / Bitbucket)
+   ↓
+API (if available)
+   ↓
+fallback (local changelog renderer)`
+```
 
 Rules:
 
@@ -30,18 +38,43 @@ Rules:
 
 ## 🎯 Purpose
 
-- Generate GitHub-style release notes
-- Match GitHub UI output exactly
-- Persist notes to disk
-- Support dry-run mode for CI
+Release notes answer:
+
+> _What changed in this release in a user-facing format?_
+
+Unlike the changelog, release notes:
+
+- Are optimized for readability
+- May use provider APIs (GitHub / GitLab)
+- Can fallback to local generation
+
+---
+
+## 🌍 Supported Providers
+
+| Provider  | API Support | Behavior        |
+| --------- | ----------- | --------------- |
+| GitHub    | ✅          | Uses GitHub API |
+| GitLab    | ✅          | Uses GitLab API |
+| Bitbucket | ❌          | Fallback only   |
+
+---
+
+## 🔁 Execution Flow
+
+1. Resolve repository info from Git
+2. Detect provider (GitHub, GitLab, Bitbucket)
+3. Attempt provider API call
+4. If successful → use API-generated notes
+5. If failed → fallback to local changelog renderer
 
 ---
 
 ## 🧠 Programmatic API
 
-### Signature
+### generateReleaseNotes()
 
-#### generateReleaseNotes()
+#### Signature
 
 ```ts
 generateReleaseNotes(options?: {
@@ -52,11 +85,19 @@ generateReleaseNotes(options?: {
 
 #### Behavior
 
-- Get the version from `package.json`
-- Get the previous release tag
-- Extracts the GitHub repository path (owner/name)
-- Get the default branch name
-- Generate release notes via the GitHub API
+##### Normal Mode
+
+- Reads version from `package.json`
+- Detects previous Git tag
+- Calls provider API (if available)
+- Falls back automatically if needed
+- Writes `RELEASE_NOTES.md`
+
+##### Dry-Run Mode
+
+- Computes next version via `computeVersion`
+- Skips provider API
+- Writes `RELEASE_NOTES.dry-run.md`
 
 #### Output files
 
@@ -74,6 +115,69 @@ generateReleaseNotes(options?: {
 
 ---
 
+## 🔌 Provider System
+
+Each provider implements:
+
+```ts
+{
+  buildUrl(ref);
+  generateReleaseNotes(context);
+}
+```
+
+### Provider contract
+
+Provider adapters must return a normalized result object from `generateReleaseNotes()` with this shape:
+
+```ts
+type ProviderGenerateResult =
+  | { ok: true; content: string }
+  | { ok: false; reason: string; status?: number; error?: string };
+```
+
+Common `reason` values returned by providers include:
+
+- `no-repo` — repository info couldn't be resolved (local git issue)
+- `missing-token` — required token (e.g. GITLAB_TOKEN) is not provided
+- `api-error` — provider API returned an error status
+- `not-supported` — provider does not support release-notes generation
+- `exception` — an unexpected exception occurred
+
+
+### GitHub
+
+- Uses GitHub Release Notes API
+- Requires `gh` CLI or environment auth
+- Fully automated in GitHub Actions
+
+### GitLab
+
+- Uses GitLab Changelog API
+- Requires `GITLAB_TOKEN`
+
+### Bitbucket
+
+- No API support
+- Always falls back to local generation
+
+---
+
+## 🔁 Fallback Mechanism
+
+Fallback is triggered when:
+
+- No provider detected
+- API is not supported
+- Token is missing
+- API request fails
+
+Fallback uses:
+
+```ts
+renderChangelog(...)
+```
+
 ## 📜 Official Return Contract (Frozen)
 
 ### GenerateReleaseNotesResult
@@ -81,20 +185,26 @@ generateReleaseNotes(options?: {
 ```ts
 type GenerateReleaseNotesResult =
   | {
-      generated: boolean;
-      currentTag: any;
+      generated: true;
+      currentTag: string;
       previousTag: string | null;
       file: string;
       dryRun: boolean;
-      reason?: undefined;
+      // Optional: which source produced the notes (e.g. 'github', 'gitlab', 'local')
+      source?: string;
+      // If provider failed but we fell back locally, this carries the provider reason
+      fallbackReason?: string;
     }
   | {
-      generated: boolean;
-      reason: string;
-      currentTag: any;
-      previousTag?: undefined;
-      file?: undefined;
-      dryRun?: undefined;
+      generated: false;
+      // Standardized non-generated reasons (may include provider reasons)
+      reason:
+        | "no-release" // no content detected / nothing to release
+        | "already-exists" // file or release already exists
+        | "no-repo" // unable to resolve repository info
+        | "api-error" // provider API failed
+        | string; // other provider-specific reasons (e.g. 'missing-token', 'not-supported')
+      currentTag: string;
     };
 ```
 
@@ -110,7 +220,7 @@ npx rs-release-notes generate [--dry-run]
 
 ---
 
-### rs-tag create
+### rs-release-notes generate
 
 Generates a release notes using the official GitHub API, just like GitHub's “Generate release notes” button (UI).
 In dry-run mode, it only uses `computeVersion()`, but does not show details.
@@ -137,13 +247,31 @@ npx rs-release-notes generate --dry-run
 
 ---
 
-## ⚠️ Requirements
+## 🧠 Design Principles
 
-- GitHub CLI (`gh`) must be installed
-- Repository must be authenticated (`gh auth status`)
+- Design Principles
+- Provider abstraction (no lock-in)
+- Graceful fallback (always works)
+- Deterministic output
+- CI-safe behavior
 
 ---
 
-## 🧊 Contract Stability
+## 🔒 Safety Guarantees
 
-This contract is **stable** and aligned with GitHub’s release notes API behavior.
+- No API dependency required
+- No failure blocks release flow
+- No hidden side effects
+
+---
+
+## ✅ Summary
+
+Release notes are:
+
+- Smart (API when possible)
+- Safe (fallback always works)
+- Portable (multi-provider)
+- Deterministic (CI-ready)
+
+Release Suite ensures release notes are always generated — regardless of environment.
