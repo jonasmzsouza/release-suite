@@ -1,6 +1,6 @@
 {
   "name": "release-suite",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "Semantic versioning and release automation toolkit for Git-based projects.",
   "type": "module",
   "publishConfig": {

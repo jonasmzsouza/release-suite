@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 The format follows the conventions of [Conventional Commits](https://www.conventionalcommits.org) and semantic versioning (SemVer).
 
+## 3.2.1
+
+### 🐛 Fixes
+
+- Improve release notes reliability and changelog reference handling ([#38](https://github.com/jonasmzsouza/release-suite/pull/38))
+
 ## 3.2.0
 
 ### ✨ Features
