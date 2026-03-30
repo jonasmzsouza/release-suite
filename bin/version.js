@@ -41,8 +41,8 @@ export function main() {
     console.error(
       JSON.stringify(
         {
-          "error": "invalid-usage",
-          "message": "Invalid action. Usage: npx rs-version compute"
+          error: "invalid-usage",
+          message: "Invalid action. Usage: npx rs-version compute"
         },
         null,
         2
@@ -51,35 +51,32 @@ export function main() {
     process.exit(1);
   }
 
-  try {
-
-    let result = null;
-    if (action === "compute") {
-      result = result = computeVersion();
-    }
-
-    console.log(JSON.stringify(result, null, 2));
-
-    if (action === "compute") {
-      if (result.hasRelease) process.exit(0);
-      if (result.reason === "no-bump-detected") process.exit(10);
-      if (result.reason === "no-commits") process.exit(2);
-    }
-
-    process.exit(1);
-  } catch (err) {
-    console.error(
-      JSON.stringify(
-        {
-          error: "unexpected-error",
-          message: err.message || String(err),
-        },
-        null,
-        2
-      )
-    );
-    process.exit(1);
+  let result = null;
+  if (action === "compute") {
+    result = result = computeVersion();
   }
+
+  console.log(JSON.stringify(result, null, 2));
+
+  if (action === "compute") {
+    if (result.hasRelease) process.exit(0);
+    if (result.reason === "no-bump-detected") process.exit(10);
+    if (result.reason === "no-commits") process.exit(2);
+  }
+
+  process.exit(1);
 }
 
-main();
+main().catch((err) => {
+  console.error(
+    JSON.stringify(
+      {
+        error: "unexpected-error",
+        message: err?.message || String(err)
+      },
+      null,
+      2
+    )
+  );
+  process.exit(1);
+});
