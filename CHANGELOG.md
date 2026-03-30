@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 The format follows the conventions of [Conventional Commits](https://www.conventionalcommits.org) and semantic versioning (SemVer).
 
+## 3.2.0
+
+### ✨ Features
+- Multi-provider release notes architecture + PR/Issue-linked changelog (#36) ([#36](https://github.com/jonasmzsouza/release-suite/issues/36))
+
 ## 3.1.0
 
 ### ✨ Features
